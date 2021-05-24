@@ -1,37 +1,37 @@
 %set constants
 
-base_diameter = 18; %[inches], acrylic platform bolt circle
-top_diameter = 14; %[inches], acrylic platform bolt circle
-a = (base_diameter)/2; %[inches], distance from center of base to actuator
-b = (top_diameter)/2; %[inches], distance from center of top to actuator
+base_diameter = 18; %[inches], acrylicplatform bolt circle
+top_diameter = 14; %[inches], acrylicplatform bolt circle
+a = (base_diameter)/2; %[inches], distancefrom center of base to actuator
+b = (top_diameter)/2; %[inches], distancefrom center of top to actuator
 %Set base and top angles
 base_angle = [ 0 60 120 180 240 300 ]; %[degrees], Spacing of actuator pairs, base
-base_angle = sort(base_angle); %sorted for calculation integrity
+base_angle = sort(base_angle); %sorted forcalculation integrity
 top_angle = [ 0 40 120 160 240 280 ]; %[degrees], Spacing of actuator pairs, top
-top_angle = sort(top_angle); %sorted for calculation integrity
+top_angle = sort(top_angle); %sorted forcalculation integrity
 % Set configuration
 % 6-3 Configuration when the base joints are spaced 60° and the top joints
 % pairs are spaced ~120° (Physical joint angle accounted for)
 % 6-6 Configuration when all joints are spaced 60° (unstable configuration)
-configuration_6_3 = false; % Run preset 6-3 configuration simulation
-configuration_6_6 = false; % Run preset 6-6 configuration simulation
+configuration_6_3 = false; % Run preset 6-3configuration simulation
+configuration_6_6 = false; % Run preset 6-6configuration simulation
 animation = false; % Display Animation
 plots = true; % Display Plots
 %Set physical parameters
 stroke_length = 8; %[inches]
-joint_angle = 3.47; %[degrees], for 6_3 configuration
+joint_angle = 3.47; %[degrees], for 6_3configuration
 min_joint_length = 16.7; %[inches], from CAD
 max_joint_length = 24.7; %[inches], from CAD
-min_joint_velocity = -2; %[inches/sec], from Progressive Automations
-max_joint_velocity = 2; %[inches/sec], from Progressive Automations
+min_joint_velocity = -2; %[inches/sec], fromProgressive Automations
+max_joint_velocity = 2; %[inches/sec], fromProgressive Automations
 % Set up motion variables
 n= 1:400; % Array dimension
-[theta,phi,psi,Px,Py,Pz]=deal(zeros(1,length(n))); % Create position array
+[theta,phi,psi,Px,Py,Pz]=deal(zeros(1,length(n))); % Create positionarray
 time_duration= 10; % Seconds
-time = 0:(time_duration/(max(n)-1)):time_duration; % Create time array, position
-time_dot = time; % Create time array, velocity
+time = 0:(time_duration/(max(n)-1)):time_duration; % Create timearray, position
+time_dot = time; % Create timearray, velocity
 time_dot(end)=[]; % Delete array end, discrete differentiation
-motion_profile = 2; % Choose motion profile
+motion_profile = 2; % Choose motionprofile
 % Preallocation, create joint locations and distance arrays
 a_i = zeros(4,6,length(theta));
 b_i = zeros(4,6,length(theta));
@@ -49,7 +49,7 @@ if motion_profile == 1
  to x axis
  phi(m) = 0; %[degrees], relative
  to y axis
-
+ 
  psi(m) = -30 + 60 * m/max(n); %[degrees], relative
  to z axis
  Px(m) = 0; %[inches], x position
@@ -59,12 +59,9 @@ if motion_profile == 1
 end
 if motion_profile == 2
  for m = 1:length(n)
- theta(m) = 10; %[degrees], relative
- to x axis
- phi(m) = 10*cosd(m/max(n)*360); %[degrees], relative
- to y axis
- psi(m) = 0; %[degrees], relative
- to z axis
+ theta(m) = 10; %[degrees], relativeto x axis
+ phi(m) = 10*cosd(m/max(n)*360); %[degrees], relativeto y axis
+ psi(m) = 0; %[degrees], relativeto z axis
  Px(m) = 3 * m/max(n); %[inches], x position
  Py(m) = 0; %[inches], y position
  Pz(m) = 22 - 3*m/max(n) ; %[inches], z position
@@ -72,12 +69,9 @@ if motion_profile == 2
 end
 if motion_profile == 3
  for m = 1:length(n)
- theta(m) = 0; %[degrees], relative
- to x axis
- phi(m) = 10; %[degrees], relative
- to y axis
- psi(m) = -15 + 25 * m/max(n); %[degrees], relative
- to z axis
+ theta(m) = 0; %[degrees], relativeto x axis
+ phi(m) = 10; %[degrees], relative to y axis
+ psi(m) = -15 + 25 * m/max(n); %[degrees], relativeto z axis
  Px(m) = 3; %[inches], x position
  Py(m) = -2 + 3 * m/max(n); %[inches], y position
  Pz(m) = 20; %[inches], z position
@@ -120,7 +114,7 @@ if configuration_6_6
  L_length(j,i) = sqrt(L_vector(1,i,j)^2 + L_vector(2,i,j)^2 + L_vector(3,i,j)^2);
  end
  end
-
+ 
 elseif configuration_6_3
  for j = 1:length(theta)
  %calculate b vector for each top location
@@ -183,7 +177,7 @@ for i=2:length(n)
  L_length_dot(i-1,j) = (L_length(i,j) - L_length(i-1,j))/(time(i)-time(i-1));
  end
 end
-
+ 
 %plots
 
 if plots
@@ -203,7 +197,7 @@ if plots
  for i=1:6
  plot(time_dot,L_length_dot(:,i))
  end
-
+ 
  plot(time, min_joint_velocity*ones(1,length(time)),'--k', time, max_joint_velocity*ones(1,length(time)),'--k', 'LineWidth',2)
  xlabel('Time (seconds)')
  ylabel('Velocity (inches/sec)')
@@ -242,7 +236,7 @@ end
 
 if animation
  figure(100)
-
+ 
  alpha_base = 0:10:360; %creates angles for circular base plot
  x_base = base_diameter*0.5*cosd(alpha_base); %x values for
  circular base
