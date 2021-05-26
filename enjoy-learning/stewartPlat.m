@@ -282,3 +282,10 @@ plot3(x_base, y_base, z_base, 'b-', 'LineWidth', 3); %plot
  end
  end
 end
+
+function b_rotation = stewartrot(theta, phi, psi, b_home)
+Z= [cos(psi) -sin(psi) 0 0;sin(psi) cos(psi) 0 0;0 0 1 0; 0 0 0 1];
+    Y = [cos(theta) 0 sin(theta) 0;0 1 0 0 ;-sin(theta) 0 cos(theta) 0; 0 0 0 1];
+    X = [1 0 0 0;0 cos(phi) -sin(phi) 0;0 sin(phi) cos(phi) 0; 0 0 0 1];
+    b_rotation = Z*Y*X;
+end
