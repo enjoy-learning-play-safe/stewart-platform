@@ -24,8 +24,8 @@ top_angle = sort(top_angle); %sorted for calculation integrity
 configuration_6_3 = false; % Run preset 6-3configuration simulation
 configuration_6_6 = false; % Run preset 6-6configuration simulation
 configuration_3_2_6 = true; % Run preset 3-2-6configuration simulation
-animation = true; % Display Animation
-plots = false; % Display
+animation = true; % ! Display Animation
+plots = false; % ! Display
 
 % * PHYSICAL PARAMETERS
 % TODO switch from freedom units to SI units
@@ -43,7 +43,7 @@ time_duration = 10; % Seconds
 time = 0:(time_duration / (max(n) - 1)):time_duration; % Create timearray, position
 time_dot = time; % Create timearray, velocity
 time_dot(end) = []; % Delete array end, discrete differentiation
-motion_profile = 2; % Choose motionprofile
+motion_profile = 3; % ! Choose motionprofile
 
 % * PREALLOCATION, CREATE JOINT LOCATIONS AND DISTANCE ARRAYS
 a_i = zeros(4, 6, length(theta));
@@ -60,11 +60,11 @@ if motion_profile == 1
 
     for m = 1:length(n)
         theta(m) = -30 + 30 * m / max(n); %[degrees], relative
-        to x axis
+        % to x axis
         phi(m) = 0; %[degrees], relative
-        to y axis
+        % to y axis
         psi(m) = -30 + 60 * m / max(n); %[degrees], relative
-        to z axis
+        % to z axis
         Px(m) = 0; %[inches], x position
         Py(m) = 0; %[inches], y position
         Pz(m) = 20 + 2 * cosd(m / max(n) * 360); %[inches], z position
@@ -198,7 +198,7 @@ end
 
 % ** Derivative calculation
 
-[theta_dot, phi_dot, psi_dot, Px_dot, Py_dot, Pz_dot, P_dot] = deal(zeros(1, length(n) - 1)); %preallocation
+[theta_dot, phi_dot, psi_dot, Px_dot, Py_dot, Pz_dot, P_dot] = deal(zeros(1, length(n) - 1)); % preallocation
 
 for i = 2:length(n)
     Px_dot(i - 1) = (Px(i) - Px(i - 1)) / (time(i) - time(i - 1));
@@ -216,7 +216,6 @@ for i = 2:length(n)
 end
 
 % ** PLOTS
-
 if plots
     figure(1)
     hold on
@@ -273,7 +272,6 @@ if plots
 end
 
 % ** ANIMATION
-
 if animation
     figure(100)
     alpha_base = 0:10:360; %creates angles for circular base plot
@@ -320,7 +318,7 @@ if animation
         axis([-(1.5 * a) (1.5 * a) -(1.5 * a) 1.5 * a 0 (max(Pz) + b / 2)]);
         grid on;
         set(gcf, 'WindowState', 'fullscreen')
-        pause(1/100)
+        pause(1/80) % ! SPEED OF ANIMATION
 
         if j < length(psi)
             clf;
@@ -328,4 +326,11 @@ if animation
 
     end
 
+end
+
+function b_rotation = stewartrot(theta, phi, psi, b_home)
+    Z = [cos(psi) -sin(psi) 0 0; sin(psi) cos(psi) 0 0; 0 0 1 0; 0 0 0 1];
+    Y = [cos(theta) 0 sin(theta) 0; 0 1 0 0; -sin(theta) 0 cos(theta) 0; 0 0 0 1];
+    X = [1 0 0 0; 0 cos(phi) -sin(phi) 0; 0 sin(phi) cos(phi) 0; 0 0 0 1];
+    b_rotation = Z * X * Y * b_home;
 end
