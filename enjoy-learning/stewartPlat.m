@@ -20,6 +20,7 @@ configuration_6_3 = false; % Run preset 6-3 configuration simulation
 configuration_6_6 = false; % Run preset 6-6 configuration simulation
 animation = true; % Display Animation
 plots = false; % Display Plots
+
 % * SET PHYSICAL PARAMETERS
 stroke_length = 8; % [inches]
 joint_angle = 3.47; % [degrees], for 6_3
@@ -316,10 +317,10 @@ if animation
 
 end
 
-% to be refactored into another file:
-function b_rotation = stewartrot(theta, phi, psi, b_home)
+% ** MAGIC SAUCE
+function b_rot = stewartrot(theta, phi, psi, b_home)
     Z = [cosd(psi) -sind(psi) 0 0; sind(psi) cosd(psi) 0 0; 0 0 1 0; 0 0 0 1];
     Y = [cosd(theta) 0 sind(theta) 0; 0 1 0 0; -sind(theta) 0 cosd(theta) 0; 0 0 0 1];
     X = [1 0 0 0; 0 cosd(phi) -sind(phi) 0; 0 sind(phi) cosd(phi) 0; 0 0 0 1];
-    b_rotation = Z * Y * X * b_home;
+    b_rot = Z * Y * X * b_home;
 end
