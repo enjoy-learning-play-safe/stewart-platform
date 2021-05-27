@@ -15,8 +15,8 @@ top_angle = sort(top_angle); %sorted forcalculation integrity
 % 6-6 Configuration when all joints are spaced 60° (unstable configuration)
 configuration_6_3 = false; % Run preset 6-3configuration simulation
 configuration_6_6 = false; % Run preset 6-6configuration simulation
-animation = false; % Display Animation
-plots = true; % Display Plots
+animation = true; % Display Animation
+plots = false; % Display Plots
 %Set physical parameters
 stroke_length = 8; %[inches]
 joint_angle = 3.47; %[degrees], for 6_3configuration
@@ -239,9 +239,9 @@ if animation
  
  alpha_base = 0:10:360; %creates angles for circular base plot
  x_base = base_diameter*0.5*cosd(alpha_base); %x values for
- circular base
+%  circular base
  y_base = base_diameter*0.5*sind(alpha_base); %y values for
- circular base
+%  circular base
  z_base = zeros(length(x_base)); %z values for circular base
  if configuration_6_3 == 0 && configuration_6_6 == 0
  alpha = base_angle;
@@ -255,7 +255,7 @@ if animation
  for j = 1:length(psi)
  hold off
 plot3(x_base, y_base, z_base, 'b-', 'LineWidth', 3); %plot
- circular base every time
+%  circular base every time
  hold on
  for i = 1:6
  % for each instance in time, plot the xyz values of the end of the
@@ -287,5 +287,5 @@ function b_rotation = stewartrot(theta, phi, psi, b_home)
 Z= [cos(psi) -sin(psi) 0 0;sin(psi) cos(psi) 0 0;0 0 1 0; 0 0 0 1];
     Y = [cos(theta) 0 sin(theta) 0;0 1 0 0 ;-sin(theta) 0 cos(theta) 0; 0 0 0 1];
     X = [1 0 0 0;0 cos(phi) -sin(phi) 0;0 sin(phi) cos(phi) 0; 0 0 0 1];
-    b_rotation = Z*Y*X;
+    b_rotation = Z*X*Y*b_home;
 end
