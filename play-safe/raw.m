@@ -20,7 +20,7 @@ plots = true; % Display Plots
 %Set physical parameters
 stroke_length = 8; %[inches]
 joint_angle = 3.47; %[degrees], for 6_3
-configuration
+% configuration
 min_joint_length = 16.7; %[inches], from CAD
 max_joint_length = 24.7; %[inches], from CAD
 min_joint_velocity = -2; %[inches/sec], from Progressive Automations
@@ -122,8 +122,7 @@ if configuration_6_6
 
             b_rot(:, i, j) = stewartrot(theta(j), phi(j), psi(j), b_i(:, i, j));
             L_vector(:, i, j) = P(:, j) + b_rot(:, i, j) - a_i(:, i, j);
-            L_length(j, i) = sqrt(L_vector(1, i, j)^2 + L_vector(2, i, j)^2
-            + L_vector(3, i, j)^2);
+            L_length(j, i) = sqrt(L_vector(1, i, j)^2 + L_vector(2, i, j)^2 + L_vector(3, i, j)^2);
         end
 
     end
@@ -154,8 +153,7 @@ elseif configuration_6_3
 
             b_rot(:, i, j) = stewartrot(theta(j), phi(j), psi(j), b_i(:, i, j));
             L_vector(:, i, j) = P(:, j) + b_rot(:, i, j) - a_i(:, i, j);
-            L_length(j, i) = sqrt(L_vector(1, i, j)^2 + L_vector(2, i, j)^2
-            + L_vector(3, i, j)^2);
+            L_length(j, i) = sqrt(L_vector(1, i, j)^2 + L_vector(2, i, j)^2 + L_vector(3, i, j)^2);
         end
 
     end
@@ -177,8 +175,7 @@ else %for all non-true 6-6 and 6-3 cases
 
             b_rot(:, i, j) = stewartrot(theta(j), phi(j), psi(j), b_i(:, i, j));
             L_vector(:, i, j) = P(:, j) + b_rot(:, i, j) - a_i(:, i, j);
-            L_length(j, i) = sqrt(L_vector(1, i, j)^2 + L_vector(2, i, j)^2
-            + L_vector(3, i, j)^2);
+            L_length(j, i) = sqrt(L_vector(1, i, j)^2 + L_vector(2, i, j)^2 + L_vector(3, i, j)^2);
         end
 
     end
@@ -193,15 +190,13 @@ for i = 2:length(n)
     Px_dot(i - 1) = (Px(i) - Px(i - 1)) / (time(i) - time(i - 1));
     Py_dot(i - 1) = (Py(i) - Py(i - 1)) / (time(i) - time(i - 1));
     Pz_dot(i - 1) = (Pz(i) - Pz(i - 1)) / (time(i) - time(i - 1));
-    P_dot(i - 1) = sqrt((Px_dot(i - 1))^2 + (Py_dot(i - 1))^2 +
-    (Pz_dot(i - 1))^2);
+    P_dot(i - 1) = sqrt((Px_dot(i - 1))^2 + (Py_dot(i - 1))^2 + (Pz_dot(i - 1))^2);
     theta_dot(i - 1) = (theta(i) - theta(i - 1)) / (time(i) - time(i - 1));
     phi_dot(i - 1) = (phi(i) - phi(i - 1)) / (time(i) - time(i - 1));
     psi_dot(i - 1) = (psi(i) - psi(i - 1)) / (time(i) - time(i - 1));
 
     for j = 1:6
-        L_length_dot(i - 1, j) = (L_length(i, j) - L_length(i - 1, j)) /
-        (time(i) - time(i - 1));
+        L_length_dot(i - 1, j) = (L_length(i, j) - L_length(i - 1, j)) / (time(i) - time(i - 1));
     end
 
 end
@@ -218,11 +213,8 @@ if plots
 
     xlabel('Time (seconds)')
     ylabel('Length (inches)')
-    plot(time, min_joint_length * ones(1, length(time)), '--k', time,
-    max_joint_length * ones(1, length(time)), '--k', 'LineWidth', 2)
-    legend('Actuator 1', 'Actuator 2', 'Actuator 3', 'Actuator
-    4', 'Actuator 5', 'Actuator 6', 'Min Length', 'Max
-    Length', 'Location', 'north')
+    plot(time, min_joint_length * ones(1, length(time)), '--k', time, max_joint_length * ones(1, length(time)), '--k', 'LineWidth', 2)
+    legend('Actuator 1', 'Actuator 2', 'Actuator 3', 'Actuator 4', 'Actuator 5', 'Actuator 6', 'Min Length', 'Max Length', 'Location', 'north')
     title('Joint Lengths, from Sphere to Sphere')
     hold off
     figure(2)
@@ -232,23 +224,19 @@ if plots
         plot(time_dot, L_length_dot(:, i))
     end
 
-    plot(time, min_joint_velocity * ones(1, length(time)), '--k', time,
-    max_joint_velocity * ones(1, length(time)), '--k', 'LineWidth', 2)
+    plot(time, min_joint_velocity * ones(1, length(time)), '--k', time, max_joint_velocity * ones(1, length(time)), '--k', 'LineWidth', 2)
     xlabel('Time (seconds)')
     ylabel('Velocity (inches/sec)')
     ylim([-2.5 2.5])
     % plot(time, min_joint_length*ones(1,length(time_dot)), time, max_joint_length * ones(1, length(time)))
-    legend('Actuator 1', 'Actuator 2', 'Actuator 3', 'Actuator
-    4', 'Actuator 5', 'Actuator 6', 'Min Length', 'Max
-    Length', 'Location', 'northwest')
+    legend('Actuator 1', 'Actuator 2', 'Actuator 3', 'Actuator 4', 'Actuator 5', 'Actuator 6', 'Min Length', 'Max Length', 'Location', 'northwest')
     title('Joint Velocities')
     hold off
     figure(3)
     plot(time, Px, time, Py, time, Pz)
     xlabel('Time (seconds)')
     ylabel('Coordinate Value (inches)')
-    legend('X Centroid', 'Y Centroid', 'Z
-    Centroid', 'Location', 'east')
+    legend('X Centroid', 'Y Centroid', 'Z Centroid', 'Location', 'east')
     title('Position of Centroid P')
     figure(4)
     plot(time, theta, time, phi, time, psi)
@@ -257,19 +245,16 @@ if plots
     legend('Theta (about X)', 'Phi (about Y)', 'Psi (about Z)')
     title('Angle of Rotation about Respective Axis')
     figure(5)
-    plot(time_dot, Px_dot, time_dot, Py_dot, time_dot, Pz_dot,
-    time_dot, P_dot)
+    plot(time_dot, Px_dot, time_dot, Py_dot, time_dot, Pz_dot, time_dot, P_dot)
     xlabel('Time (seconds)')
     ylabel('Coordinate Value Velocity (inches/sec)')
-    legend('X Centroid', 'Y Centroid', 'Z Centroid', 'Centroid
-    Velocity', 'Location', 'southeast')
+    legend('X Centroid', 'Y Centroid', 'Z Centroid', 'Centroid Velocity', 'Location', 'southeast')
     title('Velocity of Centroid P')
     figure(6)
     plot(time_dot, theta_dot, time_dot, phi_dot, time_dot, psi_dot)
     xlabel('Time (seconds)')
     ylabel('Angular Velocity (degree/sec)')
-    legend('Theta Dot (about X)', 'Phi Dot (about Y)', 'Psi Dot (about
-    Z)', 'Location', 'north')
+    legend('Theta Dot (about X)', 'Phi Dot (about Y)', 'Psi Dot (about Z)', 'Location', 'north')
     title('Angular Velocity about Respective Axis')
 end
 
@@ -303,31 +288,31 @@ if animation
         hold on
 
         for i = 1:6
-            % for each instance in time, plot the xyz values of the
-        end of the
+            % for each instance in time, plot the xyz values of the end of the actuators based on the length
+            x_d(i) = x(i) + L_vector(1, i, j);
+            y_d(i) = y(i) + L_vector(2, i, j);
+            z_d(i) = z(i) + L_vector(3, i, j);
+            plot3([x(i) x_d(i)], [y(i) y_d(i)], [z(i) z_d(i)], 'LineWidth', 3)
+        end
 
-        % actuators based on the length
-        x_d(i) = x(i) + L_vector(1, i, j);
-        y_d(i) = y(i) + L_vector(2, i, j);
-        z_d(i) = z(i) + L_vector(3, i, j);
-        plot3([x(i) x_d(i)], [y(i) y_d(i)], [z(i)
-                                        z_d(i)], 'LineWidth', 3)
-    end
+        % periodic boundary condition to complete top plate drawing
+        x_d(i + 1) = x_d(1);
+        y_d(i + 1) = y_d(1);
+        z_d(i + 1) = z_d(1);
+        plot3(x_d, y_d, z_d, 'LineWidth', 3)
+        % plot settings
+        axis square;
+        axis([-(1.5 * a) (1.5 * a) -(1.5 * a) 1.5 * a 0 (max(Pz) + b / 2)]);
+        grid on;
+        set(gcf, 'WindowState', 'fullscreen')
+        pause(1/100)
 
-    % periodic boundary condition to complete top plate drawing
-    x_d(i + 1) = x_d(1);
-    y_d(i + 1) = y_d(1);
-    z_d(i + 1) = z_d(1);
-    plot3(x_d, y_d, z_d, 'LineWidth', 3)
-    % plot settings
-    axis square;
-    axis([-(1.5 * a) (1.5 * a) -(1.5 * a) 1.5 * a 0 (max(Pz) + b / 2)]);
-    grid on;
-    set(gcf, 'WindowState', 'fullscreen')
-    pause(1/100)
+        if j < length(psi)
+            clf;
+        end
 
-    if j < length(psi)
-        clf;
     end
 
 end
+
+% to be refactored into another file:
