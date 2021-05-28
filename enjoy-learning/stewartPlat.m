@@ -7,9 +7,11 @@ a = (base_diameter) / 2; % [inches], distance from center of base to actuator
 b = (top_diameter) / 2; % [inches], distance from center of top to actuator
 
 % * SET BASE AND TOP ANGLES
-base_angle = [0 60 120 180 240 300]; % [degrees], Spacing of actuator pairs, base
+% base_angle = [0 60 120 180 240 300]; % [degrees], Spacing of actuator pairs, base
+base_angle = [72.5 107.5 192.5 227.5 312.5 347.5]; % [degrees], Spacing of actuator pairs, base
 base_angle = sort(base_angle); % sorted for calculation integrity
-top_angle = [0 40 120 160 240 280]; % [degrees], Spacing of actuator pairs, top
+% top_angle = [0 40 120 160 240 280]; % [degrees], Spacing of actuator pairs, top
+top_angle = [0 60 120 180 240 300]; % [degrees], Spacing of actuator pairs, top
 top_angle = sort(top_angle); % sorted for calculation integrity
 
 % * SET CONFIGURATION
@@ -38,7 +40,7 @@ time_duration = 10; % Seconds
 time = 0:(time_duration / (max(n) - 1)):time_duration; % Create time array, position
 time_dot = time; % Create time array, velocity
 time_dot(end) = []; % Delete array end, discrete differentiation
-motion_profile = 2; % Choose motion profile
+motion_profile = 3; % Choose motion profile
 
 % * PREALLOCATION, CREATE JOINT LOCATIONS AND DISTANCE ARRAYS
 a_i = zeros(4, 6, length(theta));
