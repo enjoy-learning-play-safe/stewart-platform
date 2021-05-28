@@ -270,7 +270,8 @@ end
 
 if animation
     figure(100)
-    alpha_base = 0:10:360; % creates angles for circular base plot
+    % alpha_base = [0, 60, 120, 180, 240, 300, 360]; % creates angles for circular base plot
+    alpha_base = [base_angle base_angle(0)]; % creates angles for circular base plot
     x_base = base_diameter * 0.5 * cosd(alpha_base); % x values for circular base
     y_base = base_diameter * 0.5 * sind(alpha_base); % y values for circular base
     z_base = zeros(length(x_base)); % z values for circular base
@@ -296,14 +297,14 @@ if animation
             x_d(i) = x(i) + L_vector(1, i, j);
             y_d(i) = y(i) + L_vector(2, i, j);
             z_d(i) = z(i) + L_vector(3, i, j);
-            plot3([x(i) x_d(i)], [y(i) y_d(i)], [z(i) z_d(i)], 'LineWidth', 3)
+            plot3([x(i) x_d(i)], [y(i) y_d(i)], [z(i) z_d(i)], 'LineWidth', 3) % plots conrod lines
         end
 
         % * periodic boundary condition to complete top plate drawing
         x_d(i + 1) = x_d(1);
         y_d(i + 1) = y_d(1);
         z_d(i + 1) = z_d(1);
-        plot3(x_d, y_d, z_d, 'LineWidth', 3)
+        plot3(x_d, y_d, z_d, 'b-', 'LineWidth', 3) % plots platform
         % * plot settings
         axis square;
         axis([-(1.5 * a) (1.5 * a) -(1.5 * a) 1.5 * a 0 (max(Pz) + b / 2)]);
