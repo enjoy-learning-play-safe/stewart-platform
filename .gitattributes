@@ -17,6 +17,7 @@
 *.mat           binary
 *.mdl           binary
 *.slx           binary
+*.mlx           binary
 *.mdlp          binary
 *.slxp          binary
 *.sldd          binary
