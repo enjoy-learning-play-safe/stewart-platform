@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# unzip all .mlapp files 
+find . -type f -name '*.mlapp' -exec unzip {} -d {}_unzipped \;
