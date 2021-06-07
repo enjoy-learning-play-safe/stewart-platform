@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# unzip all .mlapp files 
-find . -type f -name '*.mlapp' -exec unzip {} -d {}_unzipped \;
-
-git add -n **/*_unzipped/
-
-git commit -m "Add changes to .mlapp unzipped archive"
