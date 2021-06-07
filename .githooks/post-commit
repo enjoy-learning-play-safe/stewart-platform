@@ -1,0 +1,16 @@
+#!/bin/sh
+
+shopt -s extglob
+shopt -s globstar
+
+# * unzip all .mlapp files
+echo 'Unzipping all .mlapp files'
+find . -type f -name '*.mlapp' -exec unzip {} -d {}_unzipped \;
+
+# * stage unzipped files
+echo 'Staging unzip directories to git'
+git add **/*_unzipped/
+
+# * commit to git
+echo 'committing staged changes'
+git commit -m "Add changes to .mlapp unzipped archive"
