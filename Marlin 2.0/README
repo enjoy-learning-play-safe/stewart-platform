@@ -1,0 +1,50 @@
+Planned possible G-codes to be supported by stewart platform version of marlin (WIP)
+
+G0 -- (Linear Move) Documentation: https://marlinfw.org/docs/gcode/G000-G001.html               // Standard non-extruder motion movement command
+
+G4 -- (Dwell) Documentation: https://marlinfw.org/docs/gcode/G004.html                          // Pause the movement and allow all commands in the queue to be executed before continuing
+
+G6 -- (Direct Stepper Move) Documentation: https://marlinfw.org/docs/gcode/G006.html            // Unsure if this G-code is needed
+
+G21 -- (Millimeter Units) Documentation: https://marlinfw.org/docs/gcode/G021.html              // By default all inputs should already be set to millimeters
+
+G27 -- (Park Toolhead) Documentation: https://marlinfw.org/docs/gcode/G027.html                 // Could be useful to set endpoints if modified
+
+G28 -- (Auto Home) Documentation: https://marlinfw.org/docs/gcode/G028.html                     // Useful to reset platform to origin
+
+G34 -- (Z Steppers Auto Alignment) Documentation: https://marlinfw.org/docs/gcode/G034.html     // Could be useful to calibrate the linear actuators
+
+G60 -- (Save Current Position) Documentation: https://marlinfw.org/docs/gcode/G060.html         // Useful to set slots of saved locations for easy positioning
+
+G61 -- (Return To Saved Position) Documentation: https://marlinfw.org/docs/gcode/G061.html      // Used in conjunction with G60
+
+G76 -- (Probe Temperature Calibration) Documentation: https://marlinfw.org/docs/gcode/G076.html // Maybe used when adding temperature monitoring to actuators and drivers to detect overheating of components as a fail safe so we don't burn the school down
+
+G90 -- (Absolute Positioning) Documentation: https://marlinfw.org/docs/gcode/G090.html          // Set absolute postitioning system
+
+G91 -- (Relative Positioning) Documentation: https://marlinfw.org/docs/gcode/G091.html          // Set relative positioning system
+
+M0/M1 -- (Unconditional Stop) Documentation: https://marlinfw.org/docs/gcode/M000-M001.html     // Completes the most recent move and pauses
+
+M17 -- (Enable Steppers) Documentation: https://marlinfw.org/docs/gcode/M017.html               // Power on the stepper motors
+
+M18/M84 -- (Disable Steppers) Documentation: https://marlinfw.org/docs/gcode/M018.html          // Disable the stepper motors (Can be utilised as power off or emergency kill switch)
+
+M80 -- (Power On) Documentation: https://marlinfw.org/docs/gcode/M080.html                      // Power on the power supply
+
+M81 -- (Power Off) Documentation: https://marlinfw.org/docs/gcode/M081.html                     // Power off the power supply
+
+M85 -- (Inactivity Shutdown) Documentation: https://marlinfw.org/docs/gcode/M085.html           // Shutdown the machine if inactive after a stipulated amount of time, save electricity and safety feature
+
+M92 -- (Set Axis Set-Per-Unit) Documentation: https://marlinfw.org/docs/gcode/M092.html         // On the fly calibratio of motors, should not be used as configuration should be hardcoded
+
+M108 -- (Break And Continue) Documentation: https://marlinfw.org/docs/gcode/M108.html           // Used in conjunction with M0 to continue by acting as a LCD confirmation
+
+M110 -- (Set Line Number) Documentation: https://marlinfw.org/docs/gcode/M110.html              // One technique marlin uses to sync with host
+
+M112 -- (Emergency Stop) Documentation: https://marlinfw.org/docs/gcode/M112.html               // Built-in emergency Stop
+
+M113 -- (Host Keepalive) Documentation: https://marlinfw.org/docs/gcode/M113.html               // Used to stop host from thinking marlin is DC'd
+
+M114 -- (Get Current Position) Documentation: https://marlinfw.org/docs/gcode/M114.html         // Can be used to return real time location
+
