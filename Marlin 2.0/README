@@ -48,3 +48,32 @@ M113 -- (Host Keepalive) Documentation: https://marlinfw.org/docs/gcode/M113.htm
 
 M114 -- (Get Current Position) Documentation: https://marlinfw.org/docs/gcode/M114.html         // Can be used to return real time location
 
+M350 -- (Set Micro-Stepping) Documentation: https://marlinfw.org/docs/gcode/M350.html           // Set microsteps for the stepper drivers
+
+M351 -- (Set Micro-Step Pins) Documentation: https://marlinfw.org/docs/gcode/M351.html          // Set Micro-step pins if any
+
+M400 -- (Finish Moves) Documentation: https://marlinfw.org/docs/gcode/M400.html                 // Similar to G4 but without a set time
+
+M422 -- (Set Z Motor XY) Documentation: https://marlinfw.org/docs/gcode/M422.html               // Can be used to calibrate the stepper motors
+
+M425 -- (Backlash compensastion) Documentation: https://marlinfw.org/docs/gcode/M425.html       // Dunno what this does but it looks useful
+
+M430 -- (Power Monitor) Documentation: https://marlinfw.org/docs/gcode/M430.html                // Used to monitor current, voltage, and watts
+
+M500 -- (Save Settings) Documentation: https://marlinfw.org/docs/gcode/M500.html                // Save settings 
+
+M710 -- (Controller Fan Settings) Documentation: https://marlinfw.org/docs/gcode/M710.html      // Tune the controller Fan
+
+M810-M819 -- (G-Code Macros) Documentation: https://marlinfw.org/docs/gcode/M810-M819.html      // Set macros
+
+M906 -- (TMC Motor Current) Documentation: https://marlinfw.org/docs/gcode/M906.html            // Useful if using TMC Stepper drivers
+
+M907 -- (Set motor Current) DOcumentation: https://marlinfw.org/docs/gcode/M907.html            //If need to set stepper motor current
+
+M911 -- (TMC OT Pre-Warn Condition) Documentation: https://marlinfw.org/docs/gcode/M911.html    // Useful to monitor overheating if using TMC stepper drivers
+
+M912 -- (Clear TMC OT Pre-Warn) Documentation: https://marlinfw.org/docs/gcode/M912.html        // Used in conjunction with M911
+
+M914 -- (TMC Bump Sensitivity) Documentation: https://marlinfw.org/docs/gcode/M914.html         // Set bump sensitivity if using TMC stepper drivers
+
+M999 -- (STOP Restart) Documentation: https://marlinfw.org/docs/gcode/M999.html                 // Used to resume machine from a STOP Condition
