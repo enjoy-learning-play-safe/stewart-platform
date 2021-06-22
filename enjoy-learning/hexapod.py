@@ -3,13 +3,14 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=.1)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=.2)
 def write_read(x):
     x = str(x) + "\r\n"
     arduino.write(bytes(x, 'utf-8'))
     time.sleep(0.1)
     data = arduino.readline()
-    return data
+    print(data)
+    return 
 
 def rotation_simple(psi, theta, phi):
     cpsi= math.cos(psi)
@@ -37,7 +38,7 @@ def actuator_solving(b_coor,p_coor):
 
 
 def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,previous_inputs):
-    slicing_number = 20   #tune movement
+    slicing_number = 25   #tune movement
     increment =slicing_number
     n=0
     while slicing_number > 0:
@@ -54,7 +55,7 @@ def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,
         legs = np.round(legs,2)                     #increase precison here 
         print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
         output ="G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5]) 
-        # write_read(output)
+        write_read(output)
         print(output)
         slicing_number=slicing_number-1 
     return
@@ -86,18 +87,12 @@ def menu():
             p_coor= np.append(p_coorxy, np.array([np.ones(6)*home_height]), axis = 0)
             legs= actuator_solving(b_coor, p_coor)
             legs = np.round(legs,2)                     #increase precison here 
-            # previous_inputs= np.zeros((6))
-            # while start_up >0:
-            #     write_read(0)
-            #     start_up= start_up-1
+            previous_inputs= np.zeros((6))
             #print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
             homing_ini= "G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])
-            #output= gcode(p_coor,p_origin_pbasis,p_origin_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
-            print(homing_ini)
-            #write_read(homing_ini)
-
-            print("home G code")
-            state=1
+            write_read(homing_ini)
+            print("Hopeful")
+            state=0.5
         elif num_legs == 5:
             p_angles= [[0],[2*math.pi/5],[4*math.pi/5],[6*math.pi/5],[8*math.pi/5]]
             print("Platform angles", p_angles)
@@ -112,6 +107,12 @@ def menu():
             return
         print("end state 0")
     
+    while state==0.5:
+            gcode(p_coor,p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
+            print(homing_ini)
+            print("home G code")
+            state =1
+
     while state ==1:
         print("Current platform coordinates")
         print(p_coor)
@@ -124,8 +125,12 @@ def menu():
         yaw= (float(input("Yaw movement absolutein degrees: "))/180)*math.pi   
         
         gcode(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
-        if input("continue? yes or no ")=="yes":
+        user = input("continue? yes or no or gcode ")
+        if user=="yes":
             state=1
+        elif user == "gcode":
+            write_read(input("Type your Gcode: "))
+
         else:
             state=0 
 
