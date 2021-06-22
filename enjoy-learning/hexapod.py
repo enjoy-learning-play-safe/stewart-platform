@@ -33,19 +33,16 @@ def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,
     n=0
     while slicing_number > 0:
         n=n+1
-        print(previous_inputs[0],"previous x")
         inc_x= ((x-previous_inputs[0])/increment)*n +previous_inputs[0]
         inc_y= ((y-previous_inputs[1])/increment)*n +previous_inputs[1]
         inc_z= ((z-previous_inputs[2])/increment)*n +previous_inputs[2]
         inc_roll= ((roll-previous_inputs[3])/increment)*n +previous_inputs[3]
         inc_pitch= ((pitch-previous_inputs[4])/increment)*n +previous_inputs[4]
         inc_yaw= ((yaw-previous_inputs[5])/increment)*n +previous_inputs[5]
-        
         rotated = np.matmul(rotation_simple(inc_roll,inc_pitch,inc_yaw), p_coor_pbasis)     
-        final_p_coor = np.array([rotated[0]+inc_x, rotated[1]+inc_y, rotated[2]+inc_z])  -p_origin_pbasis + p_coor
+        final_p_coor = np.array([rotated[0]+inc_x, rotated[1]+inc_y, rotated[2]+inc_z]) -p_origin_pbasis + p_coor
         legs= actuator_solving(b_coor, final_p_coor)
         legs = np.round(legs,2)                     #increase precison here 
-        
         print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
         slicing_number=slicing_number-1 
     return
@@ -75,7 +72,10 @@ def menu():
             home_height=(abs(fixed_rods**2-(b_coor[0][0]-p_coorxy[0][0])**2-(b_coor[1][0]-p_coorxy[1][0])**2))**0.5 +actuator_home
             p_origin_pbasis = np.append(p_coorxy, np.array([np.zeros(6)]), axis = 0)
             p_coor= np.append(p_coorxy, np.array([np.ones(6)*home_height]), axis = 0)
-            print(p_coor)
+            legs= actuator_solving(b_coor, p_coor)
+            legs = np.round(legs,2)                     #increase precison here 
+            print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
+            print("home G code")
             state=1
         elif num_legs == 5:
             p_angles= [[0],[2*math.pi/5],[4*math.pi/5],[6*math.pi/5],[8*math.pi/5]]
@@ -92,11 +92,9 @@ def menu():
         print("end state 0")
     
     while state ==1:
-        print("state started, give inputs")
         print("Current platform coordinates")
         print(p_coor)
         previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
-        print(previous_inputs)
         x_translate= float(input("X translation absolute: "))
         y_translate= float(input("Y translation absolute: "))
         z_translate= float(input("Z translation absolute: "))
