@@ -1,6 +1,15 @@
 import math 
 import numpy as np
+import serial
+import time
 
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=.1)
+def write_read(x):
+    x = str(x) + "\r\n"
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.1)
+    data = arduino.readline()
+    return data
 
 def rotation_simple(psi, theta, phi):
     cpsi= math.cos(psi)
@@ -44,6 +53,9 @@ def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,
         legs= actuator_solving(b_coor, final_p_coor)
         legs = np.round(legs,2)                     #increase precison here 
         print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
+        output ="G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5]) 
+        # write_read(output)
+        print(output)
         slicing_number=slicing_number-1 
     return
 
@@ -74,7 +86,16 @@ def menu():
             p_coor= np.append(p_coorxy, np.array([np.ones(6)*home_height]), axis = 0)
             legs= actuator_solving(b_coor, p_coor)
             legs = np.round(legs,2)                     #increase precison here 
-            print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
+            # previous_inputs= np.zeros((6))
+            # while start_up >0:
+            #     write_read(0)
+            #     start_up= start_up-1
+            #print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
+            homing_ini= "G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])
+            #output= gcode(p_coor,p_origin_pbasis,p_origin_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
+            print(homing_ini)
+            #write_read(homing_ini)
+
             print("home G code")
             state=1
         elif num_legs == 5:
@@ -115,8 +136,8 @@ def menu():
 # start code form here
 b_r= 150 #float(input("Base radius: "))
 p_r= 100 #float(input("Platform radius: "))
-actuator_mini = 200 #float(input("Actuator unextended: "))
-actuator_max =500 #float(input("Actuator fully extended: "))
+actuator_mini = 10 #float(input("Actuator unextended: "))
+actuator_max = 50 #float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2)+actuator_mini
 fixed_rods= 200  #float(input("Fixed rod lengths: "))
         
