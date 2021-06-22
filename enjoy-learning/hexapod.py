@@ -27,24 +27,27 @@ def actuator_solving(b_coor,p_coor):
     
 
 
-def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw):
+def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,previous_inputs):
     slicing_number = 20   #tune movement
     increment =slicing_number
     n=0
-    while slicing_number >0:
+    while slicing_number > 0:
         n=n+1
-        inc_x= (x/increment)*n
-        inc_y= (y/increment)*n
-        inc_z= (z/increment)*n
-        inc_roll= (roll/increment)*n
-        inc_pitch= (pitch/increment)*n
-        inc_yaw= (yaw/increment)*n   
+        print(previous_inputs[0],"previous x")
+        inc_x= ((x-previous_inputs[0])/increment)*n +previous_inputs[0]
+        inc_y= ((y-previous_inputs[1])/increment)*n +previous_inputs[1]
+        inc_z= ((z-previous_inputs[2])/increment)*n +previous_inputs[2]
+        inc_roll= ((roll-previous_inputs[3])/increment)*n +previous_inputs[3]
+        inc_pitch= ((pitch-previous_inputs[4])/increment)*n +previous_inputs[4]
+        inc_yaw= ((yaw-previous_inputs[5])/increment)*n +previous_inputs[5]
+        
         rotated = np.matmul(rotation_simple(inc_roll,inc_pitch,inc_yaw), p_coor_pbasis)     
         final_p_coor = np.array([rotated[0]+inc_x, rotated[1]+inc_y, rotated[2]+inc_z])  -p_origin_pbasis + p_coor
         legs= actuator_solving(b_coor, final_p_coor)
         legs = np.round(legs,2)                     #increase precison here 
+        
         print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
-        slicing_number=slicing_number-1
+        slicing_number=slicing_number-1 
     return
 
 def menu():
@@ -92,9 +95,8 @@ def menu():
         print("state started, give inputs")
         print("Current platform coordinates")
         print(p_coor)
-        
-        
-        
+        previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
+        print(previous_inputs)
         x_translate= float(input("X translation absolute: "))
         y_translate= float(input("Y translation absolute: "))
         z_translate= float(input("Z translation absolute: "))
@@ -102,7 +104,7 @@ def menu():
         pitch= (float(input("Pitch movement absolutein degrees: "))/180)*math.pi 
         yaw= (float(input("Yaw movement absolutein degrees: "))/180)*math.pi   
         
-        gcode(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw)
+        gcode(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
         if input("continue? yes or no ")=="yes":
             state=1
         else:
