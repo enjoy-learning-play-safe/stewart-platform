@@ -46,7 +46,36 @@ def actuator_solving(b_coor,p_coor):
     leggy = np.array([leg1,leg2,leg3,leg4,leg5,leg6]) 
     return leggy
     
-
+def home( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor,previous_inputs):
+    slicing_number = 15   #tune movement
+    increment =slicing_number
+    x = 0
+    y = 0
+    z = 0
+    roll = 0
+    pitch = 0 
+    yaw = 0 
+    n=0
+    print("homing to mid")
+    while slicing_number > 0:
+        n=n+1
+        inc_x= ((x-previous_inputs[0])/increment)*n +previous_inputs[0]
+        inc_y= ((y-previous_inputs[1])/increment)*n +previous_inputs[1]
+        inc_z= ((z-previous_inputs[2])/increment)*n +previous_inputs[2]
+        inc_roll= ((roll-previous_inputs[3])/increment)*n +previous_inputs[3]
+        inc_pitch= ((pitch-previous_inputs[4])/increment)*n +previous_inputs[4]
+        inc_yaw= ((yaw-previous_inputs[5])/increment)*n +previous_inputs[5]
+        rotated = np.matmul(rotation_simple(inc_yaw,inc_pitch,inc_roll), p_coor_pbasis)     
+        final_p_coor = np.array([rotated[0]+inc_x, rotated[1]+inc_y, rotated[2]+inc_z]) -p_origin_pbasis + p_coor
+        legs= actuator_solving(b_coor, final_p_coor)
+        legs = np.round(legs,4)                     #increase precison here 
+        output ="G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5]) 
+        write_read(output)
+        print(output)
+        slicing_number=slicing_number-1 
+    write_read(output)  #Added flushing of buffer at start up. might not be needed now 
+    return
+    
 
 def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,previous_inputs):
     slicing_number = 25   #tune movement
@@ -60,7 +89,7 @@ def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,
         inc_roll= ((roll-previous_inputs[3])/increment)*n +previous_inputs[3]
         inc_pitch= ((pitch-previous_inputs[4])/increment)*n +previous_inputs[4]
         inc_yaw= ((yaw-previous_inputs[5])/increment)*n +previous_inputs[5]
-        rotated = np.matmul(rotation_simple(inc_roll,inc_pitch,inc_yaw), p_coor_pbasis)     
+        rotated = np.matmul(rotation_simple(inc_yaw,inc_pitch,inc_roll), p_coor_pbasis)     
         final_p_coor = np.array([rotated[0]+inc_x, rotated[1]+inc_y, rotated[2]+inc_z]) -p_origin_pbasis + p_coor
         legs= actuator_solving(b_coor, final_p_coor)
         legs = np.round(legs,4)                     #increase precison here 
@@ -68,6 +97,12 @@ def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,
         write_read(output)
         print(output)
         slicing_number=slicing_number-1 
+    print("end of slicing loop")
+    print("for checking")
+    print(output)
+    write_read(output)  #Added flushing of buffer at start up. might not be needed now 
+    # write_read(output)
+    # write_read(output)
     return
 
 def menu():
@@ -100,13 +135,17 @@ def menu():
             previous_inputs= np.zeros((6))
             print("Starting up")
             echo()
-            print("end start up")
-            time.sleep(2)
+            print("End start up")
             ini_home ="G0 X"+str(actuator_home)+ " Y"+str(actuator_home)+" Z"+str(actuator_home)+" A"+str(actuator_home)+" B"+str(actuator_home)+" C"+str(actuator_home) 
             write_read(ini_home)
+            time.sleep(3)
             print("in waiting after start")
             print(arduino.in_waiting)
             print("homed at " + ini_home)
+
+            print(arduino.in_waiting)   #test the effects on actuator
+            arduino.reset_input_buffer()
+            print("Flush input buffer at start up") #check if this affects
 
             state=1
         elif num_legs == 5:
@@ -121,7 +160,6 @@ def menu():
         else:
             print("leg number error")
             return
-        print("end state 0")
     
 
     while state ==1:
@@ -131,6 +169,8 @@ def menu():
         print("For 6DOF input type 6dof")
         print("For G code type gcode")
         print("To end the programme type end")
+        print("To home to mid point type home")
+        print("To check input buffer type buffer")
         user = input("input: ")
 
         if user=="6dof":
@@ -151,6 +191,8 @@ def menu():
         elif user == "gcode":
             print("in waiting before gcode")
             print(arduino.in_waiting)
+            arduino.reset_input_buffer()
+            print("Flush input buffer prior to gcode movement")
             write_read(input("Type your Gcode: "))
             print("in waiting after 6dof")
             print(arduino.in_waiting)
@@ -158,20 +200,23 @@ def menu():
         elif user== "end":
             write_read("M18")
             time.sleep(1)
-            # arduino.close()
             print("in waiting")
             print(arduino.in_waiting)
-            print("out waiting")
-            print(arduino.out_waiting)
             arduino.reset_input_buffer()
-            arduino.reset_output_buffer()
             print("in waiting2")
             print(arduino.in_waiting)
-            print("out waiting2")
-            print(arduino.out_waiting)
-
+            arduino.close()
             state=0
             break 
+        elif user =="buffer":
+            print("in waiting")
+            print(arduino.in_waiting)
+        elif user =="home":
+            previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
+            print("Homing platform")
+            home(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,previous_inputs)
+            time.sleep(0.5)
+            print(arduino.out_waiting)
         else:
              continue
 
