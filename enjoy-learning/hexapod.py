@@ -3,12 +3,13 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.02)
 
 def write_read(x):
-    x = str(x) + "\r\n"
+    x = str(x) + "\r"
     arduino.write(bytes(x, 'utf-8'))
-    time.sleep(0.04)
+    #arduino.writelines(bytes(x, 'utf-8'))
+    time.sleep(0.02)
     data = arduino.readline()
     print(data)
     return 
@@ -62,8 +63,7 @@ def gcode( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x,y,z,roll,pitch,yaw,
         rotated = np.matmul(rotation_simple(inc_roll,inc_pitch,inc_yaw), p_coor_pbasis)     
         final_p_coor = np.array([rotated[0]+inc_x, rotated[1]+inc_y, rotated[2]+inc_z]) -p_origin_pbasis + p_coor
         legs= actuator_solving(b_coor, final_p_coor)
-        legs = np.round(legs,2)                     #increase precison here 
-        print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
+        legs = np.round(legs,4)                     #increase precison here 
         output ="G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5]) 
         write_read(output)
         print(output)
@@ -98,7 +98,16 @@ def menu():
             legs= actuator_solving(b_coor, p_coor)
             legs = np.round(legs,2)                     #increase precison here 
             previous_inputs= np.zeros((6))
+            print("Starting up")
             echo()
+            print("end start up")
+            time.sleep(2)
+            ini_home ="G0 X"+str(actuator_home)+ " Y"+str(actuator_home)+" Z"+str(actuator_home)+" A"+str(actuator_home)+" B"+str(actuator_home)+" C"+str(actuator_home) 
+            write_read(ini_home)
+            print("in waiting after start")
+            print(arduino.in_waiting)
+            print("homed at " + ini_home)
+
             state=1
         elif num_legs == 5:
             p_angles= [[0],[2*math.pi/5],[4*math.pi/5],[6*math.pi/5],[8*math.pi/5]]
@@ -118,24 +127,53 @@ def menu():
     while state ==1:
         print("Current platform coordinates")
         print(p_coor)
-        previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
-        x_translate= float(input("X translation absolute: "))
-        y_translate= float(input("Y translation absolute: "))
-        z_translate= float(input("Z translation absolute: "))
-        roll= (float(input("Roll movement absolute in degrees: "))/180)*math.pi  
-        pitch= (float(input("Pitch movement absolutein degrees: "))/180)*math.pi 
-        yaw= (float(input("Yaw movement absolutein degrees: "))/180)*math.pi   
-        
-        gcode(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
-        user = input("continue? yes or no or gcode ")
-        if user=="yes":
-            state=1
-        elif user == "gcode":
-            write_read(input("Type your Gcode: "))
+        print("What operation do you want?")
+        print("For 6DOF input type 6dof")
+        print("For G code type gcode")
+        print("To end the programme type end")
+        user = input("input: ")
 
+        if user=="6dof":
+            previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
+            x_translate= float(input("X translation absolute: "))
+            y_translate= float(input("Y translation absolute: "))
+            z_translate= float(input("Z translation absolute: "))
+            roll= (float(input("Roll movement absolute in degrees: "))/180)*math.pi  
+            pitch= (float(input("Pitch movement absolutein degrees: "))/180)*math.pi 
+            yaw= (float(input("Yaw movement absolutein degrees: "))/180)*math.pi   
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            gcode(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            continue
+       
+        elif user == "gcode":
+            print("in waiting before gcode")
+            print(arduino.in_waiting)
+            write_read(input("Type your Gcode: "))
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            continue
+        elif user== "end":
+            write_read("M18")
+            time.sleep(1)
+            # arduino.close()
+            print("in waiting")
+            print(arduino.in_waiting)
+            print("out waiting")
+            print(arduino.out_waiting)
+            arduino.reset_input_buffer()
+            arduino.reset_output_buffer()
+            print("in waiting2")
+            print(arduino.in_waiting)
+            print("out waiting2")
+            print(arduino.out_waiting)
+
+            state=0
+            break 
         else:
-            arduino.close()
-            state=0 
+             continue
 
         
 
@@ -144,8 +182,8 @@ def menu():
 # start code form here
 b_r= 150 #float(input("Base radius: "))
 p_r= 100 #float(input("Platform radius: "))
-actuator_mini = 10 #float(input("Actuator unextended: "))
-actuator_max = 50 #float(input("Actuator fully extended: "))
+actuator_mini = 0 #float(input("Actuator unextended: "))
+actuator_max = 390 #float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2)+actuator_mini
 fixed_rods= 200  #float(input("Fixed rod lengths: "))
         
