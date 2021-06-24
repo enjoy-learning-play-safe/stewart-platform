@@ -3,14 +3,24 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=.2)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0)
+
 def write_read(x):
     x = str(x) + "\r\n"
     arduino.write(bytes(x, 'utf-8'))
-    time.sleep(0.1)
+    time.sleep(0.04)
     data = arduino.readline()
     print(data)
     return 
+
+def echo():
+    time.sleep(4)
+    ping =23 
+    while ping >0:
+        write_read(" ")
+        ping=ping-1
+
+    
 
 def rotation_simple(psi, theta, phi):
     cpsi= math.cos(psi)
@@ -88,11 +98,8 @@ def menu():
             legs= actuator_solving(b_coor, p_coor)
             legs = np.round(legs,2)                     #increase precison here 
             previous_inputs= np.zeros((6))
-            #print("G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])) #not ready for non hexapod
-            homing_ini= "G0 X"+str(legs[0])+ " Y"+str(legs[1])+" Z"+str(legs[2])+" A"+str(legs[3])+" B"+str(legs[4])+" C"+str(legs[5])
-            write_read(homing_ini)
-            print("Hopeful")
-            state=0.5
+            echo()
+            state=1
         elif num_legs == 5:
             p_angles= [[0],[2*math.pi/5],[4*math.pi/5],[6*math.pi/5],[8*math.pi/5]]
             print("Platform angles", p_angles)
@@ -107,11 +114,6 @@ def menu():
             return
         print("end state 0")
     
-    while state==0.5:
-            gcode(p_coor,p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
-            print(homing_ini)
-            print("home G code")
-            state =1
 
     while state ==1:
         print("Current platform coordinates")
@@ -132,6 +134,7 @@ def menu():
             write_read(input("Type your Gcode: "))
 
         else:
+            arduino.close()
             state=0 
 
         
