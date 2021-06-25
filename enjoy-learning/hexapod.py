@@ -254,6 +254,65 @@ def menu():
         else:
             continue
 
+# For Match-case statement only supported in Python 3.10 and newer
+        # match input:
+        #     case '6dof':
+        #         previous_inputs = np.array(
+        #             [x_translate, y_translate, z_translate, roll, pitch, yaw])
+        #         x_translate = float(input("X translation absolute: "))
+        #         y_translate = float(input("Y translation absolute: "))
+        #         z_translate = float(input("Z translation absolute: "))
+        #         roll = (
+        #             float(input("Roll movement absolute in degrees: "))/180)*math.pi
+        #         pitch = (
+        #             float(input("Pitch movement absolute in degrees: "))/180)*math.pi
+        #         yaw = (float(input("Yaw movement absolute in degrees: "))/180)*math.pi
+        #         print("in waiting before 6dof")
+        #         print(arduino.in_waiting)
+        #         gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x_translate,
+        #               y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+        #         print("in waiting after 6dof")
+        #         print(arduino.in_waiting)
+        #         continue
+
+        #     case 'gcode':
+        #         print("in waiting before gcode")
+        #         print(arduino.in_waiting)
+        #         arduino.reset_input_buffer()
+        #         print("Flush input buffer prior to gcode movement")
+        #         write_read(input("Type your Gcode: "))
+        #         print("in waiting after 6dof")
+        #         print(arduino.in_waiting)
+        #         continue
+
+        #     case 'end':
+        #         write_read("M18")
+        #         time.sleep(1)
+        #         print("in waiting")
+        #         print(arduino.in_waiting)
+        #         arduino.reset_input_buffer()
+        #         print("in waiting2")
+        #         print(arduino.in_waiting)
+        #         arduino.close()
+        #         state = 0
+        #         break
+
+        #     case 'buffer':
+        #         print("in waiting")
+        #         print(arduino.in_waiting)
+
+        #     case 'home':
+        #         previous_inputs = np.array(
+        #             [x_translate, y_translate, z_translate, roll, pitch, yaw])
+        #         print("Homing platform")
+        #         home(p_coor, p_origin_pbasis,
+        #              p_coor_pbasis, b_coor, previous_inputs)
+        #         time.sleep(0.5)
+        #         print(arduino.out_waiting)
+
+        #     case _:
+        #         continue
+
 
 # start code form here
 b_r = 150  # float(input("Base radius: "))
