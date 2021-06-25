@@ -66,7 +66,10 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     pitch = 0
     yaw = 0
     n = 0
-    print("homing to mid")
+    # print("Initiating homing process")
+    # write_read("G28")                                 #G28 Homing process, implement after configuring Marlin Quick_Home
+    # time.sleep(1)
+    print("Moving all legs to midpoint")
     while slicing_number > 0:
         n = n+1
         inc_x = ((x - previous_inputs[0])/increment)*n + previous_inputs[0]
@@ -195,15 +198,15 @@ def menu():
     while state == 1:
         print("Current platform coordinates")
         print(p_coor)
-        print("What operation do you want?")
+        print("Choose next operation:")
         print("For 6DOF input type 6dof")
-        print("For G code type gcode")
+        print("For G code input type gcode")
         print("To end the programme type end")
         print("To home to mid point type home")
         print("To check input buffer type buffer")
-        user = input("input: ")
+        userInput = input("input: ")
 
-        if user == "6dof":
+        if userInput == "6dof":
             previous_inputs = np.array(
                 [x_translate, y_translate, z_translate, roll, pitch, yaw])
             x_translate = float(input("X translation absolute: "))
@@ -221,7 +224,7 @@ def menu():
             print(arduino.in_waiting)
             continue
 
-        elif user == "gcode":
+        elif userInput == "gcode":
             print("in waiting before gcode")
             print(arduino.in_waiting)
             arduino.reset_input_buffer()
@@ -230,7 +233,7 @@ def menu():
             print("in waiting after 6dof")
             print(arduino.in_waiting)
             continue
-        elif user == "end":
+        elif userInput == "end":
             write_read("M18")
             time.sleep(1)
             print("in waiting")
@@ -241,10 +244,10 @@ def menu():
             arduino.close()
             state = 0
             break
-        elif user == "buffer":
+        elif userInput == "buffer":
             print("in waiting")
             print(arduino.in_waiting)
-        elif user == "home":
+        elif userInput == "home":
             previous_inputs = np.array(
                 [x_translate, y_translate, z_translate, roll, pitch, yaw])
             print("Homing platform")
