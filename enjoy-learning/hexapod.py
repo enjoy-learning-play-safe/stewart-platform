@@ -74,6 +74,7 @@ def home( p_coor, p_origin_pbasis, p_coor_pbasis, b_coor,previous_inputs):
         print(output)
         slicing_number=slicing_number-1 
     write_read(output)  #Added flushing of buffer at start up. might not be needed now 
+    previous_inputs= np.zeros((6))
     return
     
 
@@ -131,7 +132,7 @@ def menu():
             p_origin_pbasis = np.append(p_coorxy, np.array([np.zeros(6)]), axis = 0)
             p_coor= np.append(p_coorxy, np.array([np.ones(6)*home_height]), axis = 0)
             legs= actuator_solving(b_coor, p_coor)
-            legs = np.round(legs,2)                     #increase precison here 
+            legs = np.round(legs,4)                     #increase precison here 
             previous_inputs= np.zeros((6))
             print("Starting up")
             echo()
@@ -143,9 +144,9 @@ def menu():
             print(arduino.in_waiting)
             print("homed at " + ini_home)
 
-            print(arduino.in_waiting)   #test the effects on actuator
+            print(arduino.in_waiting)  
             arduino.reset_input_buffer()
-            print("Flush input buffer at start up") #check if this affects
+            print("Flush input buffer at start up") 
 
             state=1
         elif num_legs == 5:
@@ -186,6 +187,7 @@ def menu():
             gcode(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,x_translate,y_translate,z_translate,roll,pitch,yaw,previous_inputs)
             print("in waiting after 6dof")
             print(arduino.in_waiting)
+            previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
             continue
        
         elif user == "gcode":
@@ -198,8 +200,10 @@ def menu():
             print(arduino.in_waiting)
             continue
         elif user== "end":
-            write_read("M18")
+            arduino.reset_input_buffer()
             time.sleep(1)
+            write_read("M18")
+            
             print("in waiting")
             print(arduino.in_waiting)
             arduino.reset_input_buffer()
@@ -211,12 +215,13 @@ def menu():
         elif user =="buffer":
             print("in waiting")
             print(arduino.in_waiting)
-        elif user =="home":
-            previous_inputs = np.array([x_translate,y_translate,z_translate,roll,pitch,yaw])
+        elif user =="home":  
             print("Homing platform")
             home(p_coor, p_origin_pbasis,p_coor_pbasis,b_coor,previous_inputs)
             time.sleep(0.5)
-            print(arduino.out_waiting)
+            previous_inputs= np.zeros((6))
+        elif user == "stop":
+            arduino.reset_input_buffer()
         else:
              continue
 
