@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.02)
+arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.02)
 
 
 def write_read(x):
@@ -16,11 +16,16 @@ def write_read(x):
     return
 
 
+def start():
+    time.sleep(2)
+    write_read("start")
+
+
 def echo():
     time.sleep(4)
     ping = 23
     while ping > 0:
-        write_read(" ")
+        write_read("")
         ping = ping - 1
 
 
@@ -121,8 +126,8 @@ def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, 
         write_read(output)
         print(output)
         slicing_number = slicing_number - 1
-    print("end of slicing loop")
-    print("for checking")
+    print("End of slicing loop")
+    print("Final GCode output should be:")
     print(output)
     # Added flushing of buffer at start up. might not be needed now
     write_read(output)
