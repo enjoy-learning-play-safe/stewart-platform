@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.02)
+arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.02)
 
 def write_read(x):
     x = str(x) + "\r"
@@ -13,6 +13,12 @@ def write_read(x):
     data = arduino.readline()
     print(data)
     return
+
+
+def start():
+    time.sleep(2)
+    write_read("start")
+
 
 def echo():
     time.sleep(4)
@@ -64,7 +70,10 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     pitch = 0
     yaw = 0
     n = 0
-    print("homing to mid")
+    # print("Initiating homing process")
+    # write_read("G28")                                 #G28 Homing process, implement after configuring Marlin Quick_Home
+    # time.sleep(1)
+    print("Moving all legs to midpoint")
     while slicing_number > 0:
         n = n+1
         inc_x = ((x - previous_inputs[0])/increment)*n + previous_inputs[0]
@@ -116,8 +125,8 @@ def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, 
         write_read(output)
         print(output)
         slicing_number = slicing_number - 1
-    print("end of slicing loop")
-    print("for checking")
+    print("End of slicing loop")
+    print("Final GCode output should be:")
     print(output)
     write_read(output)
     # write_read(output)
@@ -188,15 +197,15 @@ def menu():
     while state == 1:
         print("Current platform coordinates")
         print(p_coor)
-        print("What operation do you want?")
+        print("Choose next operation:")
         print("For 6DOF input type 6dof")
-        print("For G code type gcode")
+        print("For G code input type gcode")
         print("To end the programme type end")
         print("To home to mid point type home")
         print("To check input buffer type buffer")
-        user = input("input: ")
+        userInput = input("input: ")
 
-        if user == "6dof":
+        if userInput == "6dof":
             previous_inputs = np.array([x_translate, y_translate, z_translate, roll, pitch, yaw])
             try: 
                 x_translate = float(input("X translation absolute: "))
@@ -215,7 +224,7 @@ def menu():
                 pass
             continue
 
-        elif user == "gcode":  
+        elif userInput == "gcode":  
             print("in waiting before gcode")
             print(arduino.in_waiting)
             arduino.reset_input_buffer()
@@ -227,11 +236,9 @@ def menu():
             print(arduino.in_waiting)
             previous_inputs= np.zeros((6))
             continue
-        elif user== "end":
+        elif userInput == "end":
             arduino.reset_input_buffer()
-            time.sleep(1)
-            write_read("M18")
-            
+            write_read("M18")        
             print("in waiting")
             print(arduino.in_waiting)
             arduino.reset_input_buffer()
@@ -240,10 +247,12 @@ def menu():
             arduino.close()
             state = 0
             break
-        elif user == "buffer":
+        elif userInput == "buffer":
             print("in waiting")
             print(arduino.in_waiting)
-        elif user =="home":  
+        elif userInput == "home":
+            previous_inputs = np.array(
+                [x_translate, y_translate, z_translate, roll, pitch, yaw])
             print("Homing platform")
             home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
             time.sleep(0.5)
