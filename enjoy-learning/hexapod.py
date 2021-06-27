@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.02)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.02)
 
 def write_read(x):
     x = str(x) + "\r"
@@ -251,8 +251,6 @@ def menu():
             print("in waiting")
             print(arduino.in_waiting)
         elif userInput == "home":
-            previous_inputs = np.array(
-                [x_translate, y_translate, z_translate, roll, pitch, yaw])
             print("Homing platform")
             home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
             time.sleep(0.5)
