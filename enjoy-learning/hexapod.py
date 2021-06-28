@@ -134,7 +134,7 @@ def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, 
     return
 
 
-def menu():
+def menu(): 
     state = 0
     while state==0:
 
@@ -255,7 +255,7 @@ def menu():
             home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
             time.sleep(0.5)
             previous_inputs= np.zeros((6))
-        elif user == "stop":
+        elif userInput == "stop":
             arduino.reset_input_buffer()
         else:
             continue
