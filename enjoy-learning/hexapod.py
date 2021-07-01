@@ -321,12 +321,12 @@ def menu():
 
 
 # start code form here
-b_r = 150  # float(input("Base radius: "))
-p_r = 100  # float(input("Platform radius: "))
+b_r = 125 # float(input("Base radius: "))
+p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
 actuator_max = 390  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
-fixed_rods = 200  # float(input("Fixed rod lengths: "))
+fixed_rods = 210  # float(input("Fixed rod lengths: "))
 
 
 menu()
