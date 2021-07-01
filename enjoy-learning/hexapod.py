@@ -3,13 +3,13 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.02)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
 
 def write_read(x):
-    x = str(x) + "\r"
+    x = str(x) + "\r\n"
     arduino.write(bytes(x, 'utf-8'))
     #arduino.writelines(bytes(x, 'utf-8'))
-    time.sleep(0.02)
+    time.sleep(0.03)
     data = arduino.readline()
     print(data)
     return
@@ -61,7 +61,7 @@ def actuator_solving(b_coor, p_coor):
 
 
 def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
-    slicing_number = 15  # tune movement
+    slicing_number = 40  # tune movement
     increment = slicing_number
     x = 0
     y = 0
@@ -101,21 +101,20 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
 
 
 def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
-    slicing_number = 25  # tune movement
+    slicing_number = 40  # tune movement
     increment = slicing_number
     n = 0
+    arduino.reset_input_buffer()
+    print("Flush input buffer prior to movement")
     while slicing_number > 0:
         n = n + 1
         inc_x = ((x - previous_inputs[0])/increment)*n + previous_inputs[0]
         inc_y = ((y - previous_inputs[1])/increment)*n + previous_inputs[1]
         inc_z = ((z - previous_inputs[2])/increment)*n + previous_inputs[2]
-        inc_roll = ((roll - previous_inputs[3]) /
-                    increment)*n + previous_inputs[3]
-        inc_pitch = (
-            (pitch - previous_inputs[4])/increment)*n + previous_inputs[4]
+        inc_roll = ((roll - previous_inputs[3]) /increment)*n + previous_inputs[3]
+        inc_pitch = ((pitch - previous_inputs[4])/increment)*n + previous_inputs[4]
         inc_yaw = ((yaw - previous_inputs[5])/increment)*n + previous_inputs[5]
-        rotated = np.matmul(rotation_simple(
-            inc_yaw, inc_pitch, inc_roll), p_coor_pbasis)
+        rotated = np.matmul(rotation_simple(inc_yaw, inc_pitch, inc_roll), p_coor_pbasis)
         final_p_coor = np.array(
             [rotated[0] + inc_x, rotated[1] + inc_y, rotated[2]+inc_z]) - p_origin_pbasis + p_coor
         legs = actuator_solving(b_coor, final_p_coor)
@@ -129,8 +128,8 @@ def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, 
     print("Final GCode output should be:")
     print(output)
     write_read(output)
-    # write_read(output)
-    # write_read(output)
+    write_read(output)
+    write_read(output)
     return
 
 
@@ -144,6 +143,7 @@ def menu():
         roll=0
         pitch=0
         yaw=0
+        previous_inputs = np.array([x_translate, y_translate, z_translate, roll, pitch, yaw])
         num_legs=6      # num_legs= int(input("Number of legs: "))
         if num_legs== 6:
             p_angles= np.array([0,math.pi/3,2*math.pi/3,math.pi,4*math.pi/3,5*math.pi/3])
@@ -166,7 +166,7 @@ def menu():
             echo()
             print("End start up")
             ini_home = "G0 X" + str(actuator_home) + " Y" + str(actuator_home) + " Z" + str(
-                actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home) + " F80"
+                actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
             print("feedrate setting")
             write_read(ini_home)
@@ -206,7 +206,6 @@ def menu():
         userInput = input("input: ")
 
         if userInput == "6dof":
-            previous_inputs = np.array([x_translate, y_translate, z_translate, roll, pitch, yaw])
             try: 
                 x_translate = float(input("X translation absolute: "))
                 y_translate = float(input("Y translation absolute: "))
@@ -232,7 +231,7 @@ def menu():
             byuser= input("Type your Gcode: ")
             byuser = byuser.upper()
             write_read(byuser)
-            print("in waiting after 6dof")
+            print("in waiting after gcode")
             print(arduino.in_waiting)
             previous_inputs= np.zeros((6))
             continue
