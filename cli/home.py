@@ -1,3 +1,8 @@
+import numpy as np
+from actuator_solving import actuator_solving
+from write_read import write_read
+from rotation_simple import rotation_simple
+
 
 def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     slicing_number = 15  # tune movement
@@ -33,7 +38,7 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
             " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         print(output)
-        slicing_number=slicing_number-1 
-    write_read(output)  
-    previous_inputs= np.zeros((6))
+        slicing_number = slicing_number-1
+    write_read(output)
+    previous_inputs = np.zeros((6))
     return
