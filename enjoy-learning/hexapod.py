@@ -205,6 +205,7 @@ def menu():
         print("To home to mid point type home")
         print("To check input buffer type buffer")
         print("For EMERGENCY STOP type stop")
+        print("For halt type halt")
         userInput = input("input: ")
 
         if userInput == "6dof":
@@ -258,6 +259,8 @@ def menu():
             previous_inputs= np.zeros((6))
         elif userInput == "stop":
             write_read("M112")
+        elif userInput == "halt":
+            write_read("M410")
         else:
             continue
 
