@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.2)
 
 def write_read(x):
     x = str(x) + "\r\n"
@@ -169,6 +169,7 @@ def menu():
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
             print("feedrate setting")
+            write_read("G28")
             write_read(ini_home)
             time.sleep(3)
             print("in waiting after start")
@@ -203,6 +204,7 @@ def menu():
         print("To end the programme type end")
         print("To home to mid point type home")
         print("To check input buffer type buffer")
+        print("For EMERGENCY STOP type stop")
         userInput = input("input: ")
 
         if userInput == "6dof":
@@ -255,7 +257,7 @@ def menu():
             time.sleep(0.5)
             previous_inputs= np.zeros((6))
         elif userInput == "stop":
-            arduino.reset_input_buffer()
+            write_read("M112")
         else:
             continue
 
