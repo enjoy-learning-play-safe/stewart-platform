@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -80,7 +80,7 @@ def slicing_number_generator(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, 
     for final_legs_i, previous_legs_i in zip_object:
         actuator_change.append(abs(final_legs_i - previous_legs_i))
     max_actuator_change = max(actuator_change)
-    return max_actuator_change / max_change_per_slice
+    return int(math.ceil(max_actuator_change / max_change_per_slice))
 
 
 def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
@@ -128,7 +128,6 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
 
 
 def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
-
     slicing_number = slicing_number_generator(
         p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs)  # tune movement
     increment = slicing_number
@@ -162,6 +161,7 @@ def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, 
         print(output)
         slicing_number = slicing_number - 1
     print("End of slicing loop")
+    print(f"Slices of movement is {increment}")
     print("Final GCode output should be:")
     print(output)
     write_read(output)
@@ -215,7 +215,7 @@ def menu():
             print("feedrate setting")
             write_read("G28")
             write_read(ini_home)
-            time.sleep(3)
+            time.sleep(2)
             print("in waiting after start")
             print(arduino.in_waiting)
             print("homed at " + ini_home)
@@ -249,7 +249,7 @@ def menu():
         print("To home to mid point type home")
         print("To check input buffer type buffer")
         print("For EMERGENCY STOP type stop")
-        print("For halt type halt")
+        print("For cancel type cancel")
         userInput = input("input: ")
 
         if userInput == "6dof":
