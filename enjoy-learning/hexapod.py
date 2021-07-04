@@ -80,7 +80,12 @@ def slicing_number_generator(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, 
     for final_legs_i, previous_legs_i in zip_object:
         actuator_change.append(abs(final_legs_i - previous_legs_i))
     max_actuator_change = max(actuator_change)
-    return int(math.ceil(max_actuator_change / max_change_per_slice))
+    slicing_number = int(
+        math.ceil(max_actuator_change / float(max_change_per_slice)))
+    if(slicing_number >= minimum_slice_per_movement):
+        return slicing_number
+    else:
+        return minimum_slice_per_movement
 
 
 def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
@@ -213,7 +218,7 @@ def menu():
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
             print("feedrate setting")
-            write_read("G28")
+            # write_read("G28")
             write_read(ini_home)
             time.sleep(2)
             print("in waiting after start")
@@ -301,10 +306,15 @@ def menu():
             print("in waiting")
             print(arduino.in_waiting)
         elif userInput == "home":
-            print("Homing platform")
-            home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
-            time.sleep(0.5)
-            previous_inputs = np.zeros((6))
+            try:
+                print("Homing platform")
+                home(p_coor, p_origin_pbasis,
+                    p_coor_pbasis, b_coor, previous_inputs)
+                time.sleep(0.5)
+                previous_inputs = np.zeros((6))
+            except:
+                pass
+            continue
         elif userInput == "stop":
             write_read("M112")
         elif userInput == "halt":
@@ -382,6 +392,8 @@ actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
 fixed_rods = 210  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
 max_change_per_slice = 5  # Change resolution of movements here
+# Minimum slices per movement (can be removed if not needed)
+minimum_slice_per_movement = 10
 
 
 menu()
