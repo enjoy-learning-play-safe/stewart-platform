@@ -61,18 +61,13 @@ def actuator_solving(b_coor, p_coor):
     return leggy
 
 
-def slicing_number_generator(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
+def slicing_number_generator(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw):
 
-    rotated_Previous = np.matmul(rotation_simple(
-        previous_inputs[3], previous_inputs[4], previous_inputs[5]), p_coor_pbasis)
-    previous_p_coor = np.array(
-        [rotated_Previous[0] + previous_inputs[0], rotated_Previous[1] + previous_inputs[1], rotated_Previous[2] + previous_inputs[2]]) - p_origin_pbasis + p_coor
-    previous_legs = actuator_solving(b_coor, previous_p_coor)
+    previous_legs = actuator_solving(b_coor, p_coor)  #p_coor is already the previous platform coordinate before movement. no need to solve it again
     previous_legs = np.round(previous_legs, actuator_Precision)
-    rotated_Final = np.matmul(rotation_simple(
-        yaw, pitch, roll), p_coor_pbasis)
-    final_p_coor = np.array(
-        [rotated_Final[0] + x, rotated_Final[1] + y, rotated_Final[2] + z]) - p_origin_pbasis + p_coor
+    rotated_Final = np.matmul(rotation_simple(yaw, pitch, roll), p_coor_pbasis)
+    final_p_coor = np.array([rotated_Final[0] + x, rotated_Final[1] + y, rotated_Final[2] + z]) - p_origin_pbasis + p_coor
+        
     final_legs = actuator_solving(b_coor, final_p_coor)
     final_legs = np.round(final_legs, actuator_Precision)
     actuator_change = []
@@ -97,7 +92,7 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     pitch = 0
     yaw = 0
     slicing_number = slicing_number_generator(
-        p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs)  # tune movement
+        p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw)  # tune movement
     increment = slicing_number
 
     n = 0
@@ -134,7 +129,7 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
 
 def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
     slicing_number = slicing_number_generator(
-        p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs)  # tune movement
+        p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw)  # tune movement
     increment = slicing_number
     n = 0
     arduino.reset_input_buffer()
@@ -391,7 +386,7 @@ actuator_max = 390  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
 fixed_rods = 210  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
-max_change_per_slice = 5  # Change resolution of movements here
+max_change_per_slice = 1  # Change resolution of movements here
 # Minimum slices per movement (can be removed if not needed)
 minimum_slice_per_movement = 10
 
