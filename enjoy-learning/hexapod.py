@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -122,6 +122,7 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
         write_read(output)
         print(output)
         slicing_number = slicing_number-1
+    print(f"Slices of movement is {increment}")
     write_read(output)
     previous_inputs = np.zeros((6))
     return
@@ -213,9 +214,8 @@ def menu():
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
             print("feedrate setting")
-            # write_read("G28")
+            write_read("G28")
             write_read(ini_home)
-            time.sleep(2)
             print("in waiting after start")
             print(arduino.in_waiting)
             print("homed at " + ini_home)
@@ -312,7 +312,7 @@ def menu():
             continue
         elif userInput == "stop":
             write_read("M112")
-        elif userInput == "halt":
+        elif userInput == "cancel":
             write_read("M410")
         else:
             continue
@@ -382,7 +382,7 @@ def menu():
 b_r = 125  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
-actuator_max = 390  # float(input("Actuator fully extended: "))
+actuator_max = 200  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
 fixed_rods = 210  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
