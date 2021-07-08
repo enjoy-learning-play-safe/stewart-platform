@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -39,7 +39,6 @@ def casualflex(b_coor,p_coor):
     row_x = p_coor[0]
     row_y =p_coor[1]
     n=0
-    # write_read("F800")
     while index>0:
         change = math.pi/90
         angle = angle +change
@@ -49,24 +48,18 @@ def casualflex(b_coor,p_coor):
         x_coor = x_coor * math.cos(angle)*60
         y_coor = y_coor * math.sin(angle)*60
         changes = np.concatenate((x_coor,y_coor,z_coor))
-        # print("before")
-        # print(np.round(p_coor,1))
         cir_p_coor = p_coor + changes
         legs = actuator_solving(b_coor, cir_p_coor)
-        legs = np.round(legs, 3)  # increase precison here
+        legs = np.round(legs, actuator_Precision)  # increase precison here
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         print(output)
-        time.sleep(0.05)
-        # print("after")
-        # print(np.round(cir_p_coor,1))
         n=n+1
         print(n)
         if n==360:
             print(cir_p_coor)
         index = index-1
     print("done")
-    # write_read("F1600")
 
 
 def rotation_simple(psi, theta, phi):
@@ -424,7 +417,7 @@ def menu():
 b_r = 125  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
-actuator_max = 200  # float(input("Actuator fully extended: "))
+actuator_max = 300  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
 fixed_rods = 210  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length

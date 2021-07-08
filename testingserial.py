@@ -4,32 +4,30 @@ import serial
 import time
 
 
-def casualflex(b_coor,p_coor):
-    #move in a circle radius 60mm 
-    # index every 1 degrees, cycle of 360 
+def casualflex(b_coor, p_coor):
+    #move in a circle radius 60mm
+    # index every 1 degrees, cycle of 360
     # reference to a point of z+100
     #bring in p_coor, radius of platform
-    index= 45 
-    angle =0 
-    cir_p_coor=p_coor
-    row_x = p_coor[0]
-    row_y =p_coor[1]
-    while index>0:
-        change = math.pi/180 
-        angle = angle +change
+    index = 45
+    angle = 0
+    circle_coord = p_coor
+    while index > 0:
+        change = math.pi/180
+        angle = angle + change
         print(angle)
         x_coor = math.cos(angle)*60
         y_coor = math.sin(angle)*60
         print(x_coor)
         print(y_coor)
         print("before")
-        print(np.round(p_coor,1))
-        cir_p_coor[0] = row_x+x_coor
-        cir_p_coor[1] = row_y+y_coor
+        print(np.round(p_coor, 1))
+        circle_coord[0] = p_coor[0] + x_coor
+        circle_coord[1] = p_coor[1] + y_coor
         print("after")
-        print(np.round(cir_p_coor,1))
-        
-        index = index-1
+        print(np.round(circle_coord, 1))
+
+        index = index - 1
 
 
 
