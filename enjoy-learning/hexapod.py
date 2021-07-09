@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -28,30 +28,32 @@ def echo():
         write_read("G90")
         ping = ping - 1
 
-def casualflex(b_coor,p_coor):
-    #move in a circle radius 60mm 
-    # index every 1 degrees, cycle of 360 
+
+def casualflex(b_coor, p_coor):
+    # move in a circle radius 60mm
+    # index every 1 degrees, cycle of 360
     # reference to a point of z+100
-    #bring in p_coor, radius of platform
-    index= 180
-    angle =0 
-    cir_p_coor=p_coor
-    n=0
-    while index>0:
-        n=n+1
+    # bring in p_coor, radius of platform
+    index = 180
+    angle = 0
+    cir_p_coor = p_coor
+    n = 0
+    while index > 0:
+        n = n+1
         change = math.pi/90
-        angle = angle +change
+        angle = angle + change
         x_coor = np.array([np.ones((6))])
         y_coor = np.array([np.ones((6))])
         z_coor = np.array([np.ones((6))])
         x_coor = x_coor * math.cos(angle)*60
         y_coor = y_coor * math.sin(angle)*60
-        z_coor = z_coor *0.5*n
-        changes = np.concatenate((x_coor,y_coor,z_coor))
+        z_coor = z_coor * 0.5*n
+        changes = np.concatenate((x_coor, y_coor, z_coor))
         cir_p_coor = p_coor + changes
         legs = actuator_solving(b_coor, cir_p_coor)
         legs = np.round(legs, actuator_Precision)  # increase precison here
-        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
+        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(
+            legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         time.sleep(0.01)
         print(output)
@@ -59,17 +61,17 @@ def casualflex(b_coor,p_coor):
     print("done")
 
 
-def recasualflex(b_coor,p_coor):
-    #move in a circle radius 60mm 
-    # index every 1 degrees, cycle of 360 
+def recasualflex(b_coor, p_coor):
+    # move in a circle radius 60mm
+    # index every 1 degrees, cycle of 360
     # reference to a point of z+100
-    #bring in p_coor, radius of platform
-    index= 180
-    angle =0 
-    cir_p_coor=p_coor
-    n=0
-    while index>0:
-        n=n+1
+    # bring in p_coor, radius of platform
+    index = 180
+    angle = 0
+    cir_p_coor = p_coor
+    n = 0
+    while index > 0:
+        n = n+1
         change = math.pi/90
         angle = angle - change
         x_coor = np.array([np.ones((6))])
@@ -77,18 +79,18 @@ def recasualflex(b_coor,p_coor):
         z_coor = np.array([np.ones((6))])*90
         x_coor = x_coor * math.cos(angle)*60
         y_coor = y_coor * math.sin(angle)*60
-        z_coor = z_coor - 0.5*n 
-        changes = np.concatenate((x_coor,y_coor,z_coor))
+        z_coor = z_coor - 0.5*n
+        changes = np.concatenate((x_coor, y_coor, z_coor))
         cir_p_coor = p_coor + changes
         legs = actuator_solving(b_coor, cir_p_coor)
         legs = np.round(legs, actuator_Precision)  # increase precison here
-        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
+        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(
+            legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         time.sleep(0.01)
         print(output)
         index = index-1
     print("done")
-
 
 
 def rotation_simple(psi, theta, phi):
@@ -125,10 +127,12 @@ def actuator_solving(b_coor, p_coor):
 
 def slicing_number_generator(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw):
 
-    previous_legs = actuator_solving(b_coor, p_coor)  #p_coor is already the previous platform coordinate before movement. no need to solve it again
+    # p_coor is already the previous platform coordinate before movement. no need to solve it again
+    previous_legs = actuator_solving(b_coor, p_coor)
     previous_legs = np.round(previous_legs, actuator_Precision)
     rotated_Final = np.matmul(rotation_simple(yaw, pitch, roll), p_coor_pbasis)
-    final_p_coor = np.array([rotated_Final[0] + x, rotated_Final[1] + y, rotated_Final[2] + z]) - p_origin_pbasis + p_coor
+    final_p_coor = np.array([rotated_Final[0] + x, rotated_Final[1] + y,
+                            rotated_Final[2] + z]) - p_origin_pbasis + p_coor
     final_legs = actuator_solving(b_coor, final_p_coor)
     final_legs = np.round(final_legs, actuator_Precision)
     actuator_change = []
@@ -142,6 +146,7 @@ def slicing_number_generator(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, 
         return slicing_number
     else:
         return minimum_slice_per_movement
+
 
 def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     # arduino.reset_input_buffer()
@@ -158,7 +163,7 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     n = 0
     print("Moving all legs to midpoint")
     while slicing_number > 0:
-        n = n+1
+        n = n + 1
         intermediate_x = (
             (x - previous_inputs[0])/increment)*n + previous_inputs[0]
         intermediate_y = (
@@ -168,9 +173,9 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
         intermediate_roll = ((roll - previous_inputs[3]) /
                              increment)*n + previous_inputs[3]
         intermediate_pitch = (
-            (pitch-previous_inputs[4])/increment)*n + previous_inputs[4]
+            (pitch - previous_inputs[4])/increment)*n + previous_inputs[4]
         intermediate_yaw = (
-            (yaw-previous_inputs[5])/increment)*n + previous_inputs[5]
+            (yaw - previous_inputs[5])/increment)*n + previous_inputs[5]
         rotated = np.matmul(rotation_simple(
             intermediate_yaw, intermediate_pitch, intermediate_roll), p_coor_pbasis)
         intermediate_p_coor = np.array(
@@ -187,6 +192,7 @@ def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     previous_inputs = np.zeros((6))
     return
 
+
 def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
     slicing_number = slicing_number_generator(
         p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw)  # tune movement
@@ -196,17 +202,26 @@ def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, 
     print("Flush input buffer prior to movement")
     while slicing_number > 0:
         n = n + 1
-        intermediate_x = ((x - previous_inputs[0])/increment)*n + previous_inputs[0]         
-        intermediate_y = ((y - previous_inputs[1])/increment)*n + previous_inputs[1]
-        intermediate_z = ((z - previous_inputs[2])/increment)*n + previous_inputs[2]
-        intermediate_roll = ((roll - previous_inputs[3]) / increment)*n + previous_inputs[3]
-        intermediate_pitch = ((pitch - previous_inputs[4])/increment)*n + previous_inputs[4]
-        intermediate_yaw = ((yaw - previous_inputs[5])/increment)*n + previous_inputs[5]
-        rotated = np.matmul(rotation_simple(intermediate_yaw, intermediate_pitch, intermediate_roll), p_coor_pbasis)
-        intermediate_p_coor = np.array([rotated[0] + intermediate_x, rotated[1] + intermediate_y, rotated[2]+intermediate_z]) - p_origin_pbasis + p_coor
+        intermediate_x = (
+            (x - previous_inputs[0])/increment)*n + previous_inputs[0]
+        intermediate_y = (
+            (y - previous_inputs[1])/increment)*n + previous_inputs[1]
+        intermediate_z = (
+            (z - previous_inputs[2])/increment)*n + previous_inputs[2]
+        intermediate_roll = (
+            (roll - previous_inputs[3]) / increment)*n + previous_inputs[3]
+        intermediate_pitch = (
+            (pitch - previous_inputs[4])/increment)*n + previous_inputs[4]
+        intermediate_yaw = (
+            (yaw - previous_inputs[5])/increment)*n + previous_inputs[5]
+        rotated = np.matmul(rotation_simple(
+            intermediate_yaw, intermediate_pitch, intermediate_roll), p_coor_pbasis)
+        intermediate_p_coor = np.array([rotated[0] + intermediate_x, rotated[1] +
+                                       intermediate_y, rotated[2]+intermediate_z]) - p_origin_pbasis + p_coor
         legs = actuator_solving(b_coor, intermediate_p_coor)
         legs = np.round(legs, actuator_Precision)  # increase precison here
-        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
+        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(
+            legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         print(output)
         slicing_number = slicing_number - 1
@@ -263,7 +278,7 @@ def menu():
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
             print("feedrate setting")
-            write_read("G28")
+            # write_read("G28")
             write_read(ini_home)
             print("in waiting after start")
             print(arduino.in_waiting)
@@ -302,13 +317,85 @@ def menu():
         userInput = input("input: ")
 
         if userInput == "6dof":
-            try:
-                x_translate = float(input("X translation absolute: "))
-                y_translate = float(input("Y translation absolute: "))
-                z_translate = float(input("Z translation absolute: "))
-                roll = (float(input("Roll movement absolute in degrees: "))/180)*math.pi
-                pitch = (float(input("Pitch movement absolute in degrees: "))/180)*math.pi
-                yaw = (float(input("Yaw movement absolute in degrees: "))/180)*math.pi
+
+            exitClause = False
+
+            while not exitClause:
+                try:
+                    x_translate = float(input("X translation absolute: "))
+                    if (abs(x_translate) > range_x_translate):
+                        print(
+                            f"Input exceeds range of motion (\u00B1{range_x_translate}mm), please try again.")
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    exitClause = True
+                    break
+            while not exitClause:
+                try:
+                    y_translate = float(input("Y translation absolute: "))
+                    if (abs(y_translate) > range_y_translate):
+                        print(
+                            f"Input exceeds range of motion (\u00B1{range_y_translate}mm), please try again.")
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    exitClause = True
+                    break
+            while not exitClause:
+                try:
+                    z_translate = float(input("Z translation absolute: "))
+                    if (z_translate > actuator_max or z_translate < actuator_mini):
+                        print(
+                            f"Input exceeds range of motion (\u00B1{range_z_translate}mm), please try again.")
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    exitClause = True
+                    break
+            while not exitClause:
+                try:
+                    roll = (
+                        float(input("Roll movement absolute in degrees: "))/180)*math.pi
+                    if (abs(roll) > range_roll):
+                        print(
+                            f"Input exceeds range of motion (\u00B1{(range_roll/math.pi) * 180}\u00B0), please try again.")
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    exitClause = True
+                    break
+            while not exitClause:
+                try:
+                    pitch = (
+                        float(input("Pitch movement absolute in degrees: "))/180)*math.pi
+                    if (abs(pitch) > range_pitch):
+                        print(
+                            f"Input exceeds range of motion (\u00B1{(range_pitch/math.pi) * 180}\u00B0), please try again.")
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    exitClause = True
+                    break
+            while not exitClause:
+                try:
+                    yaw = (
+                        float(input("Yaw movement absolute in degrees: "))/180)*math.pi
+                    if (abs(yaw) > range_yaw):
+                        print(
+                            f"Input exceeds range of motion (\u00B1{(range_yaw/math.pi) * 180}\u00B0), please try again.")
+                        continue
+                    else:
+                        break
+                except ValueError:
+                    exitClause = True
+                    break
+            if not exitClause:
                 print("in waiting before 6dof")
                 print(arduino.in_waiting)
                 gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x_translate,
@@ -317,9 +404,6 @@ def menu():
                 print(arduino.in_waiting)
                 previous_inputs = np.array(
                     [x_translate, y_translate, z_translate, roll, pitch, yaw])
-            except:
-                pass
-            continue
 
         elif userInput == "gcode":
             print("in waiting before gcode")
@@ -350,7 +434,8 @@ def menu():
         elif userInput == "home":
             try:
                 print("Homing platform")
-                home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)    
+                home(p_coor, p_origin_pbasis,
+                     p_coor_pbasis, b_coor, previous_inputs)
                 time.sleep(0.5)
                 previous_inputs = np.zeros((6))
             except:
@@ -361,35 +446,41 @@ def menu():
         elif userInput == "cancel":
             write_read("M410")
         if userInput == "flex":
-            casualflex(b_coor,p_coor)
+            casualflex(b_coor, p_coor)
             # home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
             time.sleep(2.5)
             arduino.reset_input_buffer()
             time.sleep(0.2)
-            recasualflex(b_coor,p_coor)
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            recasualflex(b_coor, p_coor)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             time.sleep(1)
 
             gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 0,0, 0, math.pi/6, 0, 0, previous_inputs)        
             previous_inputs = np.array([0, 0, 0, math.pi/6, 0, 0])
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 0,0, 0, -math.pi/6, 0, 0, previous_inputs)        
             previous_inputs = np.array([0, 0, 0, -math.pi/6, 0, 0])
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             time.sleep(1)
             gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 0,0, 0, 0, math.pi/6, 0, previous_inputs)        
             previous_inputs = np.array([0, 0, 0, 0, math.pi/6, 0])
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 0,0, 0, 0, -math.pi/6, 0, previous_inputs)        
             previous_inputs = np.array([0, 0, 0, 0, -math.pi/6, 0])
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             time.sleep(1)
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 0,0, 0, 0, 0, math.pi/6, previous_inputs)        
             previous_inputs = np.array([0, 0, 0, 0, 0, math.pi/6])
@@ -397,9 +488,9 @@ def menu():
             previous_inputs = np.zeros((6))
             gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 0,0, 0, 0, 0, -math.pi/6, previous_inputs)        
             previous_inputs = np.array([0, 0, 0, 0, 0, -math.pi/6])
-            home(p_coor, p_origin_pbasis,p_coor_pbasis, b_coor, previous_inputs)
+            home(p_coor, p_origin_pbasis,
+                 p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
-
 
         else:
             continue
@@ -476,6 +567,12 @@ actuator_Precision = 3  # Number of DP for actuator length
 max_change_per_slice = 1  # Change resolution of movements here
 # Minimum slices per movement (can be removed if not needed)
 minimum_slice_per_movement = 10
+range_x_translate = 150
+range_y_translate = 150
+range_z_translate = (actuator_max-actuator_mini)/2
+range_roll = 0.524
+range_pitch = 0.524
+range_yaw = 0.524
 
 
 menu()
