@@ -567,8 +567,8 @@ actuator_Precision = 3  # Number of DP for actuator length
 max_change_per_slice = 1  # Change resolution of movements here
 # Minimum slices per movement (can be removed if not needed)
 minimum_slice_per_movement = 10
-range_x_translate = 150
-range_y_translate = 150
+range_x_translate = 100
+range_y_translate = 100
 range_z_translate = (actuator_max-actuator_mini)/2
 range_roll = 0.524
 range_pitch = 0.524
