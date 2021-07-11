@@ -78,7 +78,7 @@ def recasualflex(b_coor, p_coor_home):
     print("done reverse")
     return p_coor_home
 
-def rotatingflex(b_coor, p_coor_home,p_coor_pbasis):
+def rotatingflex(b_coor, p_coor_home,p_coor_pbasis,p_origin_pbasis):
     index = 180
     angle = 0
     n = 0
@@ -88,21 +88,19 @@ def rotatingflex(b_coor, p_coor_home,p_coor_pbasis):
         angle = angle + change
         x_coor = math.cos(angle)*60
         y_coor = math.sin(angle)*60
-
         pitch =  math.cos(angle)* (-30/180)*math.pi
-        roll = math.sin(angle)* (-30/180)*math.pi
+        roll = math.sin(angle)* (30/180)*math.pi
         yaw = 0 
 
         rott = np.matmul(rotation_simple(yaw, pitch, roll), p_coor_pbasis)
         p_coor = np.array([rott[0] + x_coor, rott[1] +y_coor, rott[2]]) - p_origin_pbasis + p_coor_home
-
         legs = actuator_solving(b_coor, p_coor)
         legs = np.round(legs, actuator_Precision) 
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         time.sleep(0.01)
-        print(output)
-        index = index-1
+        print(np.round(p_coor,2))
+        index = index -1
     print("done") 
 
 
@@ -258,7 +256,7 @@ def menu():
             print("End start up")
             ini_home = "G0 X" + str(actuator_home) + " Y" + str(actuator_home) + " Z" + str(actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
-            write_read("G28")
+            # write_read("G28")
             time.sleep(3)
             write_read(ini_home)
             print("in waiting after start")
@@ -465,7 +463,7 @@ def menu():
             p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, x_translate,y_translate, z_translate, roll, pitch, yaw, previous_inputs)
             previous_inputs = np.array([60, 0, 0, 0, -math.pi/6, 0])  
             time.sleep(1)
-            rotatingflex(b_coor, p_coor_home,p_coor_pbasis)
+            rotatingflex(b_coor, p_coor_home,p_coor_pbasis,p_origin_pbasis)
             time.sleep(2)
             p_coor =home(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
