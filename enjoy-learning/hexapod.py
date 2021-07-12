@@ -88,13 +88,11 @@ def rotatingflex(b_coor, p_coor_home,p_coor_pbasis,p_origin_pbasis):
         n = n+1
         change = math.pi/90
         angle = angle + change
-        x_coor = math.cos(angle)*60
-        y_coor = math.sin(angle)*60
+        x_coor = math.cos(angle)*30
+        y_coor = math.sin(angle)*30
         pitch =  math.cos(angle)* (-30/180)*math.pi
         roll = math.sin(angle)* (30/180)*math.pi
-        yaw = 0 
-
-        rott = np.matmul(rotation_simple(yaw, pitch, roll), p_coor_pbasis)
+        rott = np.matmul(rotation_simple(0, pitch, roll), p_coor_pbasis)
         p_coor = np.array([rott[0] + x_coor, rott[1] +y_coor, rott[2]]) - p_origin_pbasis + p_coor_home
         legs = actuator_solving(b_coor, p_coor)
         legs = np.round(legs, actuator_Precision) 
@@ -142,7 +140,6 @@ def slicing_number_generator(start_pose, end_pose, b_coor):
     # p_coor is already the previous platform coordinate before movement. no need to solve it again
     previous_legs = actuator_solving(b_coor, start_pose)
     previous_legs = np.round(previous_legs, actuator_Precision)
-
     final_legs = actuator_solving(b_coor, end_pose)
     final_legs = np.round(final_legs, actuator_Precision)
     actuator_change = []
@@ -260,8 +257,7 @@ def menu():
         roll = 0
         pitch = 0
         yaw = 0
-        previous_inputs = np.array(
-            [x_translate, y_translate, z_translate, roll, pitch, yaw])
+        previous_inputs = np.zeros((6))
         num_legs = 6      # num_legs= int(input("Number of legs: "))
         if num_legs == 6:
             p_angles = np.array(
@@ -294,7 +290,7 @@ def menu():
             ini_home = "G0 X" + str(actuator_home) + " Y" + str(actuator_home) + " Z" + str(
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
-            # write_read("G28")
+            write_read("G28")
             time.sleep(3)
             write_read(ini_home)
             print("in waiting after start")
@@ -362,7 +358,7 @@ def menu():
             while not exitClause:
                 try:
                     z_translate = float(input("Z translation absolute: "))
-                    if (z_translate > actuator_max or z_translate < actuator_mini):
+                    if (abs(z_translate) > range_z_translate):
                         print(
                             f"Input exceeds range of motion (\u00B1{range_z_translate}mm), please try again.")
                         continue
@@ -474,50 +470,9 @@ def menu():
             previous_inputs = np.zeros((6))
             time.sleep(2)
 
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis,
-                           b_coor, 0, 0, 0, math.pi/6, 0, 0, previous_inputs)
-            previous_inputs = np.array([0, 0, 0, math.pi/6, 0, 0])
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
-                          p_coor_pbasis, b_coor, previous_inputs)
-            previous_inputs = np.zeros((6))
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis,
-                           b_coor, 0, 0, 0, -math.pi/6, 0, 0, previous_inputs)
-            previous_inputs = np.array([0, 0, 0, -math.pi/6, 0, 0])
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
-                          p_coor_pbasis, b_coor, previous_inputs)
-            previous_inputs = np.zeros((6))
-            time.sleep(2)
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis,
-                           b_coor, 0, 0, 0, 0, math.pi/6, 0, previous_inputs)
-            previous_inputs = np.array([0, 0, 0, 0, math.pi/6, 0])
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
-                          p_coor_pbasis, b_coor, previous_inputs)
-            previous_inputs = np.zeros((6))
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis,
-                           b_coor, 0, 0, 0, 0, -math.pi/6, 0, previous_inputs)
-            previous_inputs = np.array([0, 0, 0, 0, -math.pi/6, 0])
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
-                          p_coor_pbasis, b_coor, previous_inputs)
-            previous_inputs = np.zeros((6))
-            time.sleep(2)
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis,
-                           b_coor, 0, 0, 0, 0, 0, math.pi/6, previous_inputs)
-            previous_inputs = np.array([0, 0, 0, 0, 0, math.pi/6])
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
-                          p_coor_pbasis, b_coor, previous_inputs)
-            previous_inputs = np.zeros((6))
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis,
-                           b_coor, 0, 0, 0, 0, 0, -math.pi/6, previous_inputs)
-            previous_inputs = np.array([0, 0, 0, 0, 0, -math.pi/6])
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
-                          p_coor_pbasis, b_coor, previous_inputs)
-            previous_inputs = np.zeros((6))
-
         if userInput == "casualflex":
-            x_translate = 60
-            pitch = -math.pi/6
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, x_translate,y_translate, z_translate, roll, pitch, yaw, previous_inputs)
-            previous_inputs = np.array([60, 0, 0, 0, -math.pi/6, 0])  
+            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
+            previous_inputs = np.array([30, 0, 0, 0, -math.pi/6, 0])  
             time.sleep(1)
             rotatingflex(b_coor, p_coor_home,p_coor_pbasis,p_origin_pbasis)
             time.sleep(2)
