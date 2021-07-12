@@ -24,7 +24,7 @@ def echo():
         ping = ping - 1
 
 
-def casualflex(b_coor, p_coor_home):
+def casualflex(b_coor):
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -52,7 +52,7 @@ def casualflex(b_coor, p_coor_home):
     print("done")
 
 
-def recasualflex(b_coor, p_coor_home):
+def recasualflex(b_coor):
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -80,7 +80,7 @@ def recasualflex(b_coor, p_coor_home):
     print("done reverse")
     return p_coor_home
 
-def rotatingflex(b_coor, p_coor_home,p_coor_pbasis,p_origin_pbasis):
+def rotatingflex(b_coor, p_coor_pbasis, p_origin_pbasis):
     index = 180
     angle = 0
     n = 0
@@ -155,7 +155,7 @@ def slicing_number_generator(start_pose, end_pose, b_coor):
         return minimum_slice_per_movement
 
 
-def home(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
+def home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs):
     # arduino.reset_input_buffer()
     x = y = z = roll = pitch = yaw = 0
     start_pose = p_coor
@@ -198,7 +198,7 @@ def home(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, previous_i
     return p_coor_home
 
 
-def gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
+def gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, x, y, z, roll, pitch, yaw, previous_inputs):
     start_pose = p_coor
     rott = np.matmul(rotation_simple(yaw, pitch, roll), p_coor_pbasis)
     p_coor = np.array([rott[0] + x, rott[1] + y, rott[2]+z]
@@ -279,6 +279,7 @@ def menu():
                 p_coorxy, np.array([np.zeros(6)]), axis=0)
             p_coor = np.append(p_coorxy, np.array(
                 [np.ones(6)*home_height]), axis=0)
+            global p_coor_home
             p_coor_home = np.append(p_coorxy, np.array(
                 [np.ones(6)*home_height]), axis=0)
             legs = actuator_solving(b_coor, p_coor)
@@ -409,7 +410,7 @@ def menu():
             if not exitClause:
                 print("in waiting before 6dof")
                 print(arduino.in_waiting)
-                p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor,
+                p_coor = gcode(p_coor,p_origin_pbasis, p_coor_pbasis, b_coor,
                                x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
                 print("in waiting after 6dof")
                 print(arduino.in_waiting)
@@ -445,7 +446,7 @@ def menu():
         elif userInput == "home":
             try:
                 print("Homing platform")
-                p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
+                p_coor = home(p_coor, p_origin_pbasis,
                               p_coor_pbasis, b_coor, previous_inputs)
                 time.sleep(0.5)
                 previous_inputs = np.zeros((6))
@@ -457,26 +458,26 @@ def menu():
         elif userInput == "cancel":
             write_read("M410")
         if userInput == "flex":
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
+            p_coor = home(p_coor, p_origin_pbasis,
                           p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
-            casualflex(b_coor, p_coor_home)
+            casualflex(b_coor)
             time.sleep(2.5)
             arduino.reset_input_buffer()
             time.sleep(0.2)
-            p_coor = recasualflex(b_coor, p_coor_home)
-            p_coor = home(p_coor, p_coor_home, p_origin_pbasis,
+            p_coor = recasualflex(b_coor)
+            p_coor = home(p_coor, p_origin_pbasis,
                           p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             time.sleep(2)
 
         if userInput == "casualflex":
-            p_coor = gcode(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
+            p_coor = gcode(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
             previous_inputs = np.array([30, 0, 0, 0, -math.pi/6, 0])  
             time.sleep(1)
-            rotatingflex(b_coor, p_coor_home,p_coor_pbasis,p_origin_pbasis)
+            rotatingflex(b_coor, p_coor_pbasis,p_origin_pbasis)
             time.sleep(2)
-            p_coor =home(p_coor, p_coor_home, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
+            p_coor =home(p_coor, p_origin_pbasis, p_coor_pbasis, b_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             x_translate = pitch =0
 
