@@ -549,7 +549,7 @@ def menu():
 
 
 # start code form here
-b_r = 125  # float(input("Base radius: "))
+b_r = 123.7  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
 actuator_max = 300  # float(input("Actuator fully extended: "))
