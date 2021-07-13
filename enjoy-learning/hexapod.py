@@ -2,11 +2,7 @@ import math
 import numpy as np
 import serial
 import time
-global b_coor
-global p_coor_home
-global p_origin_pbasis
-global p_coor_pbasis
-global num_legs
+
 
 arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
 
@@ -29,7 +25,7 @@ def echo():
         ping = ping - 1
 
 
-def casualflex():
+def flex():
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -38,9 +34,9 @@ def casualflex():
         n = n+1
         change = math.pi/90
         angle = angle + change
-        x_coor = np.array([np.ones((6))])
-        y_coor = np.array([np.ones((6))])
-        z_coor = np.array([np.ones((6))])
+        x_coor = np.array([np.ones((num_legs))])
+        y_coor = np.array([np.ones((num_legs))])
+        z_coor = np.array([np.ones((num_legs))])
         x_coor = x_coor * math.cos(angle)*60
         y_coor = y_coor * math.sin(angle)*60
         z_coor = z_coor * 0.5*n
@@ -59,10 +55,7 @@ def casualflex():
             output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) 
         else:
             print("error") 
-        legs = actuator_solving(cir_p_coor)
-        legs = np.round(legs, actuator_Precision)
-        output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(
-            legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
+            
         write_read(output)
         time.sleep(0.01)
         print(output)
@@ -70,7 +63,7 @@ def casualflex():
     print("done")
 
 
-def recasualflex():
+def reflex():
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -79,9 +72,9 @@ def recasualflex():
         n = n+1
         change = math.pi/90
         angle = angle - change
-        x_coor = np.array([np.ones((6))])
-        y_coor = np.array([np.ones((6))])
-        z_coor = np.array([np.ones((6))])*90
+        x_coor = np.array([np.ones((num_legs))])
+        y_coor = np.array([np.ones((num_legs))])
+        z_coor = np.array([np.ones((num_legs))])*90
         x_coor = x_coor * math.cos(angle)*60
         y_coor = y_coor * math.sin(angle)*60
         z_coor = z_coor - 0.5*n
@@ -156,19 +149,15 @@ def rotation_simple(psi, theta, phi):
 
 
 def actuator_solving(p_coor):
-    leg1 = p_coor[2][0] - (abs(fixed_rods**2 - (p_coor[0][0] -
-                           b_coor[0][0])**2 - (p_coor[1][0] - b_coor[1][0])**2))**0.5
-    leg2 = p_coor[2][1] - (abs(fixed_rods**2 - (p_coor[0][1] -
-                           b_coor[0][1])**2 - (p_coor[1][1] - b_coor[1][1])**2))**0.5
-    leg3 = p_coor[2][2] - (abs(fixed_rods**2 - (p_coor[0][2] -
-                           b_coor[0][2])**2 - (p_coor[1][2] - b_coor[1][2])**2))**0.5
-    leg4 = p_coor[2][3] - (abs(fixed_rods**2 - (p_coor[0][3] -
-                           b_coor[0][3])**2 - (p_coor[1][3] - b_coor[1][3])**2))**0.5
-    leg5 = p_coor[2][4] - (abs(fixed_rods**2 - (p_coor[0][4] -
-                           b_coor[0][4])**2 - (p_coor[1][4] - b_coor[1][4])**2))**0.5
-    leg6 = p_coor[2][5] - (abs(fixed_rods**2 - (p_coor[0][5] -
-                           b_coor[0][5])**2 - (p_coor[1][5] - b_coor[1][5])**2))**0.5
-    leggy = np.array([leg1, leg2, leg3, leg4, leg5, leg6])
+
+    cycle = num_legs 
+    n=0
+    leggy = []
+    while cycle>0:
+        leg = p_coor[2][n] - (abs(fixed_rods**2 - (p_coor[0][n] -b_coor[0][n])**2 - (p_coor[1][n] - b_coor[1][n])**2))**0.5
+        leggy.append(leg)
+        n=n+1
+        cycle= cycle-1
     return leggy
 
 
@@ -181,7 +170,7 @@ def slicing_number_generator(start_pose, end_pose):
     actuator_change = []
     zip_object = zip(final_legs, previous_legs)
     for final_legs_i, previous_legs_i in zip_object:
-        actuator_change.append(abs(final_legs_i - previous_legs_i))
+        actuator_change.append( abs(final_legs_i - previous_legs_i))
     max_actuator_change = max(actuator_change)
     slicing_number = int(
         math.ceil(max_actuator_change / float(max_change_per_slice)))
@@ -304,12 +293,10 @@ def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
 
 
 def menu():
-    global b_coor
-    global p_coor_home
-    global p_origin_pbasis
     global p_coor_pbasis
-    global num_legs
-
+    global p_coor_home
+    global b_coor 
+    global p_origin_pbasis
     state = 0
     while state == 0:
 
@@ -320,12 +307,13 @@ def menu():
         pitch = 0
         yaw = 0
         previous_inputs = np.zeros((6))
-        num_legs = 6      # num_legs= int(input("Number of legs: "))
+        global num_legs
+        num_legs = num_legs= int(input("Number of legs: "))
         if num_legs == 6:
             p_angles = np.array(
                 [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3])
             p_coorxy = np.array([np.cos(p_angles)*p_r, np.sin(p_angles)*p_r])
-            global p_coor_pbasis
+            
             p_coor_pbasis = np.append(
                 p_coorxy, np.array([np.zeros(6)]), axis=0)
             b_leg2x = p_coorxy[0][1]
@@ -335,16 +323,16 @@ def menu():
             l3a = math.atan2(b_leg23y, b_leg3x)
             b_angles = np.array(
                 [l3a+4*math.pi/3, l2a, l3a, l2a+2*math.pi/3, l3a+2*math.pi/3, l2a+4*math.pi/3])
-            global b_coor
+            
             b_coor = np.array([np.cos(b_angles)*b_r, np.sin(b_angles)*b_r])
             home_height = (abs(fixed_rods**2-(b_coor[0][0]-p_coorxy[0][0])**2-(
                 b_coor[1][0]-p_coorxy[1][0])**2))**0.5 + actuator_home
-            global p_origin_pbasis
+            
             p_origin_pbasis = np.append(
                 p_coorxy, np.array([np.zeros(6)]), axis=0)
             p_coor = np.append(p_coorxy, np.array(
                 [np.ones(6)*home_height]), axis=0)
-            global p_coor_home
+            
             p_coor_home = np.append(p_coorxy, np.array(
                 [np.ones(6)*home_height]), axis=0)
             legs = actuator_solving(p_coor)
@@ -366,7 +354,7 @@ def menu():
             print("Flush input buffer at start up")
             state = 1
         elif num_legs == 5:
-
+            
             p_angles = [0, 2*math.pi/5, 4*math.pi/5,6*math.pi/5, 8*math.pi/5]  
             p_coorxy = np.array([np.cos(p_angles)*p_r, np.sin(p_angles)*p_r])
             p_coor_pbasis = np.append(p_coorxy, np.array([np.zeros(5)]), axis=0)
@@ -377,7 +365,7 @@ def menu():
             p_origin_pbasis = np.append(p_coorxy, np.array([np.zeros(5)]), axis=0)
             p_coor = np.append(p_coorxy, np.array([np.ones(5)*home_height]), axis=0)
             p_coor_home = np.append(p_coorxy, np.array([np.ones(5)*home_height]), axis=0)
-            legs = actuator_solving(b_coor, p_coor)
+            legs = actuator_solving( p_coor)
             legs = np.round(legs, actuator_Precision)  # increase precison here
             previous_inputs = np.zeros((6))
             print("Starting up")
@@ -407,7 +395,7 @@ def menu():
             p_origin_pbasis = np.append(p_coorxy, np.array([np.zeros(4)]), axis=0)
             p_coor = np.append(p_coorxy, np.array([np.ones(4)*home_height]), axis=0)
             p_coor_home = np.append(p_coorxy, np.array([np.ones(4)*home_height]), axis=0)
-            legs = actuator_solving(b_coor, p_coor)
+            legs = actuator_solving( p_coor)
             legs = np.round(legs, actuator_Precision)  # increase precison here
             previous_inputs = np.zeros((6))
             print("Starting up")
@@ -600,14 +588,13 @@ def menu():
         elif userInput == "cancel":
             write_read("M410")
         if userInput == "flex":
-            p_coor = home(p_coor,
-                           previous_inputs)
+            p_coor = home(p_coor,previous_inputs)
             previous_inputs = np.zeros((6))
-            casualflex()
+            flex()
             time.sleep(2.5)
             arduino.reset_input_buffer()
             time.sleep(0.2)
-            p_coor = recasualflex()
+            p_coor = reflex()
             p_coor = home(p_coor,
                           previous_inputs)
             previous_inputs = np.zeros((6))
