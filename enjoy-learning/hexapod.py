@@ -24,7 +24,7 @@ def echo():
         ping = ping - 1
 
 
-def casualflex():
+def flex():
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -52,7 +52,7 @@ def casualflex():
     print("done")
 
 
-def recasualflex():
+def reflex():
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -464,11 +464,11 @@ def menu():
             p_coor = home(p_coor,
                            previous_inputs)
             previous_inputs = np.zeros((6))
-            casualflex()
+            flex()
             time.sleep(2.5)
             arduino.reset_input_buffer()
             time.sleep(0.2)
-            p_coor = recasualflex()
+            p_coor = reflex()
             p_coor = home(p_coor,
                           previous_inputs)
             previous_inputs = np.zeros((6))
