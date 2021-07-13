@@ -14,3 +14,4 @@ def rotation_simple(psi, theta, phi):
     # [spsi*ctheta, (cpsi*cphi+spsi*stheta*sphi), (spsi*stheta*cphi-cpsi*sphi)]
     # [-stheta, ctheta*sphi, ctheta*cphi]
     return rota
+
