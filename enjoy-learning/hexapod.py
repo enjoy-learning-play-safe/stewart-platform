@@ -3,6 +3,7 @@ import numpy as np
 import serial
 import time
 
+
 arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
 
 
