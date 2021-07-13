@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -92,14 +92,15 @@ def rotatingflex():
         y_coor = math.sin(angle)*30
         pitch =  math.cos(angle)* (-30/180)*math.pi
         roll = math.sin(angle)* (30/180)*math.pi
-        rott = np.matmul(rotation_simple(0, pitch, roll))
+        rott = np.matmul(rotation_simple(0, pitch, roll),p_origin_pbasis)
         p_coor = np.array([rott[0] + x_coor, rott[1] +y_coor, rott[2]]) - p_origin_pbasis + p_coor_home
         legs = actuator_solving(p_coor)
         legs = np.round(legs, actuator_Precision) 
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
         time.sleep(0.01)
-        print(np.round(p_coor,2))
+        # print(np.round(p_coor,2))
+        print(output)
         index = index -1
     print("done") 
 
@@ -181,8 +182,8 @@ def home(p_coor, previous_inputs):
             (pitch - previous_inputs[4])/increment)*n + previous_inputs[4]
         intermediate_yaw = (
             (yaw - previous_inputs[5])/increment)*n + previous_inputs[5]
-        rotated = np.matmul(rotation_simple(
-            intermediate_yaw, intermediate_pitch, intermediate_roll))
+        rotated = np.matmul(rotation_simple(intermediate_yaw, intermediate_pitch, intermediate_roll),p_origin_pbasis)
+            
         intermediate_p_coor = np.array([rotated[0] + intermediate_x, rotated[1] +
                                        intermediate_y, rotated[2] + intermediate_z]) - p_origin_pbasis + p_coor_home
         legs = actuator_solving(intermediate_p_coor)
@@ -200,7 +201,7 @@ def home(p_coor, previous_inputs):
 
 def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
     start_pose = p_coor
-    rott = np.matmul(rotation_simple(yaw, pitch, roll))
+    rott = np.matmul(rotation_simple(yaw, pitch, roll),p_origin_pbasis)
     p_coor = np.array([rott[0] + x, rott[1] + y, rott[2]+z]
                       ) - p_origin_pbasis + p_coor_home
     end_pose = p_coor
@@ -226,7 +227,7 @@ def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
         intermediate_yaw = (
             (yaw - previous_inputs[5])/increment)*n + previous_inputs[5]
         rotated = np.matmul(rotation_simple(
-            intermediate_yaw, intermediate_pitch, intermediate_roll))
+            intermediate_yaw, intermediate_pitch, intermediate_roll),p_origin_pbasis)
         intermediate_p_coor = np.array([rotated[0] + intermediate_x, rotated[1] +
                                        intermediate_y, rotated[2]+intermediate_z]) - p_origin_pbasis + p_coor_home
         legs = actuator_solving(intermediate_p_coor)
@@ -449,8 +450,7 @@ def menu():
         elif userInput == "home":
             try:
                 print("Homing platform")
-                p_coor = home(p_coor,
-                               previous_inputs)
+                p_coor = home(p_coor,previous_inputs)
                 time.sleep(0.5)
                 previous_inputs = np.zeros((6))
             except:
