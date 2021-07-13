@@ -1,5 +1,7 @@
 {
   "files.associations": {
     "*.m": "matlab"
-  }
+  },
+  "python.pythonPath": "C:\\Users\\Lam Yik Hong\\AppData\\Local\\Microsoft\\WindowsApps\\python3.9.exe",
+  "C_Cpp.errorSquiggles": "Disabled"
 }
