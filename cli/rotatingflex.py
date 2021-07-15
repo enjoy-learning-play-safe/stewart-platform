@@ -1,9 +1,8 @@
 import math
 import rotation_simple
-from menu import p_origin_pbasis, p_coor_home
 import actuator_solving
-from main import actuator_Precision
 import time
+from config import *
 import write_read
 import numpy as np
 

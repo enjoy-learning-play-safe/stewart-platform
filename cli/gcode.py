@@ -4,7 +4,7 @@ import write_read
 import rotation_simple
 import slicing_number_generator
 from write_read import arduino
-from menu import p_origin_pbasis, p_coor_home, actuator_Precision
+from config import *
 
 
 def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):

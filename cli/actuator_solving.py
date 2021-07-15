@@ -1,7 +1,7 @@
 
 import numpy as np
-from main import fixed_rods
-from menu import b_coor
+from config import *
+
 
 def actuator_solving(p_coor):
     leg1 = p_coor[2][0] - (abs(fixed_rods**2 - (p_coor[0][0] -

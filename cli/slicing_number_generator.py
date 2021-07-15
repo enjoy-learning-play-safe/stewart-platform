@@ -1,6 +1,6 @@
 import actuator_solving
 import numpy as np
-from main import *
+from config import *
 import math
 
 def slicing_number_generator(start_pose, end_pose):

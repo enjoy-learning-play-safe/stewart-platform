@@ -1,16 +1,16 @@
-from cli.casualflex import casualflex
 import numpy as np
 import time
 import math
 from echo import echo
 import actuator_solving
-from write_read import *
+import write_read
 from home import home
 from gcode import gcode
-from main import *
+from config import *
 import casualflex
 import recasualflex
 import rotatingflex
+
 
 
 def menu():
@@ -29,7 +29,6 @@ def menu():
             p_angles = np.array(
                 [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3])
             p_coorxy = np.array([np.cos(p_angles)*p_r, np.sin(p_angles)*p_r])
-            global p_coor_pbasis
             p_coor_pbasis = np.append(
                 p_coorxy, np.array([np.zeros(6)]), axis=0)
             b_leg2x = p_coorxy[0][1]
@@ -39,17 +38,14 @@ def menu():
             l3a = math.atan2(b_leg23y, b_leg3x)
             b_angles = np.array(
                 [l3a+4*math.pi/3, l2a, l3a, l2a+2*math.pi/3, l3a+2*math.pi/3, l2a+4*math.pi/3])
-            global b_coor
             b_coor = np.array([np.cos(b_angles)*b_r, np.sin(b_angles)*b_r])
             home_height = (abs(fixed_rods**2-(b_coor[0][0]-p_coorxy[0][0])**2-(
                 b_coor[1][0]-p_coorxy[1][0])**2))**0.5 + actuator_home
-            global p_origin_pbasis
             p_origin_pbasis = np.append(
                 p_coorxy, np.array([np.zeros(6)]), axis=0)
-            p_coor = np.append(p_coorxy, np.array(
-                [np.ones(6)*home_height]), axis=0)
-            global p_coor_home
             p_coor_home = np.append(p_coorxy, np.array(
+                [np.ones(6)*home_height]), axis=0)
+            p_coor = np.append(p_coorxy, np.array(
                 [np.ones(6)*home_height]), axis=0)
             legs = actuator_solving(p_coor)
             legs = np.round(legs, actuator_Precision)  # increase precison here
@@ -251,3 +247,5 @@ def menu():
 
         else:
             continue
+
+menu()
