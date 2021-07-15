@@ -1,8 +1,7 @@
-from menu import p_coor_home
 import numpy as np
 import math
 import actuator_solving
-from main import actuator_Precision
+from config import *
 import write_read
 import time
 
@@ -32,4 +31,3 @@ def recasualflex():
         print(output)
         index = index-1
     print("done reverse")
-    return p_coor_home

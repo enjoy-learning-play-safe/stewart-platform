@@ -1,4 +1,4 @@
-from menu import menu
+import serial
 
 # start code form here
 b_r = 123.7  # float(input("Base radius: "))
@@ -17,6 +17,15 @@ range_z_translate = (actuator_max-actuator_mini)/2
 range_roll = 0.524
 range_pitch = 0.524
 range_yaw = 0.524
+p_coor_pbasis = 0
+p_origin_pbasis = 0
+p_coor_home = 0
 
 
-menu()
+arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.02)
+
+def coor_ini(p_coor_pbasis, p_origin_pbasis, p_coor_home):
+    p_coor_pbasis = p_coor_pbasis
+    p_origin_pbasis = p_origin_pbasis
+    p_coor_home = p_coor_home
+

@@ -2,8 +2,7 @@ import numpy as np
 from actuator_solving import actuator_solving
 from write_read import write_read
 from rotation_simple import rotation_simple
-from menu import p_coor_home
-from main import actuator_Precision
+from config import *
 import slicing_number_generator
 
 

@@ -3,8 +3,7 @@ import write_read
 import numpy as np
 import time
 import math
-from menu import p_coor_home
-from main import actuator_Precision
+from config import *
 
 def casualflex():
     index = 180

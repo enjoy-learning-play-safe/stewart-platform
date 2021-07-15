@@ -1,7 +1,6 @@
-import serial
 import time
+from parameters import arduino
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.02)
 
 def write_read(x):
     x = str(x) + "\r\n"
