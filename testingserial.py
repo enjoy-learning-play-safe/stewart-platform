@@ -1,4 +1,4 @@
-import math 
+import math
 import numpy as np
 import serial
 import time
@@ -412,7 +412,7 @@ def menu():
             print("Flush input buffer prior to gcode movement")
             byuser = input("Type your Gcode: ")
             byuser = byuser.upper()
-            # write_read(byuser)
+            write_read(byuser)
             print("in waiting after gcode")
             # print(arduino.in_waiting)
             previous_inputs = np.zeros((6))
@@ -430,7 +430,7 @@ def menu():
             break
         elif userInput == "buffer":
             print("in waiting")
-            print(arduino.in_waiting)
+            # print(arduino.in_waiting)
         elif userInput == "home":
             try:
                 print("Homing platform")
@@ -441,11 +441,11 @@ def menu():
                 pass
             continue
         elif userInput == "stop":
-            continue
             # write_read("M112")
-        elif userInput == "cancel":
             continue
+        elif userInput == "cancel":
             # write_read("M410")
+            continue
         if userInput == "flex":
             p_coor = home(p_coor,previous_inputs)
             previous_inputs = np.zeros((6))
