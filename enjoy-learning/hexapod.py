@@ -225,7 +225,7 @@ def home(p_coor, previous_inputs):
             print("error") 
 
         write_read(output)
-        print(output)
+        print(str(n) + " " + output)
         slicing_number = slicing_number-1
     print(f"Slices of movement is {increment}")
     write_read(output)
@@ -266,7 +266,6 @@ def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
         legs = actuator_solving(intermediate_p_coor)
         legs = np.round(legs, actuator_Precision)  # increase precison here
         
-
         if num_legs == 6:
             output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         elif num_legs==5:
@@ -279,7 +278,7 @@ def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
             print("error") 
 
         write_read(output)
-        print(output)
+        print(str(n) + " " + output)
         slicing_number = slicing_number - 1
     print("End of slicing loop")
     print(f"Slices of movement is {increment}")
@@ -288,7 +287,7 @@ def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
     write_read(output)
     write_read(output)
     write_read(output)
-
+    print(arduino.in_waiting)
     return p_coor
 
 
@@ -308,7 +307,8 @@ def menu():
         yaw = 0
         previous_inputs = np.zeros((6))
         global num_legs
-        num_legs = num_legs= int(input("Number of legs: "))
+        num_legs = 6
+        # num_legs= int(input("Number of legs: "))
         if num_legs == 6:
             p_angles = np.array(
                 [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3])
@@ -344,7 +344,7 @@ def menu():
             ini_home = "G0 X" + str(actuator_home) + " Y" + str(actuator_home) + " Z" + str(
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
-            write_read("G28")
+            # write_read("G28")
             time.sleep(3)
             write_read(ini_home)
             print("in waiting after start")
@@ -458,6 +458,7 @@ def menu():
         print("For cancel type cancel")
         print("To flex type flex")
         print("To really flex type casualflex")
+        print("To stress test type stress")
         userInput = input("input: ")
 
         if userInput == "6dof":
@@ -554,7 +555,8 @@ def menu():
             arduino.reset_input_buffer()
             print("Flush input buffer prior to gcode movement")
             byuser = input("Type your Gcode: ")
-            byuser = byuser.upper()
+            byuser = str(byuser.upper())
+            print(byuser)
             write_read(byuser)
             print("in waiting after gcode")
             print(arduino.in_waiting)
@@ -609,6 +611,19 @@ def menu():
             p_coor =home(p_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             x_translate = pitch =0
+            
+        if userInput== "stress":
+            x_translate=30
+            y_translate=30
+            z_translate = 100
+            roll = pitch =yaw = 20
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor, x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array([x_translate, y_translate, z_translate, roll, pitch, yaw])
+
 
         else:
             continue
