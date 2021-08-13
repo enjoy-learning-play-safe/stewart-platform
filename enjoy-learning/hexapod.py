@@ -185,7 +185,7 @@ def home(p_coor, previous_inputs):
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(
             legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
-        print(output)
+        print(str(n)+ " " + output)
         slicing_number = slicing_number-1
     print(f"Slices of movement is {increment}")
     write_read(output)
@@ -229,7 +229,7 @@ def gcode(p_coor, x, y, z, roll, pitch, yaw, previous_inputs):
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(
             legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
-        print(output)
+        print(str(n)+ " " + output)
         slicing_number = slicing_number - 1
     print("End of slicing loop")
     print(f"Slices of movement is {increment}")
@@ -289,16 +289,6 @@ def menu():
             print("Flush input buffer at start up")
 
             state = 1
-        elif num_legs == 5:
-            p_angles = [[0], [2*math.pi/5], [4*math.pi/5],
-                        [6*math.pi/5], [8*math.pi/5]]
-            print("Platform angles", p_angles)
-        elif num_legs == 4:
-            p_angles = [[0], [math.pi/2], [math.pi], [3*math.pi/2]]
-            print("Platform angles", p_angles)
-        elif num_legs == 3:
-            p_angles = [[0], [2*math.pi/3], [4*math.pi/3]]
-            print("Platform angles", p_angles)
         else:
             print("leg number error")
             return
@@ -444,7 +434,7 @@ def menu():
             write_read("M112")
         elif userInput == "cancel":
             write_read("M410")
-        if userInput == "flex":
+        elif userInput == "flex":
             p_coor = home(p_coor,previous_inputs)
             previous_inputs = np.zeros((6))
             flex()
@@ -457,7 +447,7 @@ def menu():
             previous_inputs = np.zeros((6))
             time.sleep(2)
 
-        if userInput == "casualflex":
+        elif userInput == "casualflex":
             p_coor = gcode(p_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
             previous_inputs = np.array([30, 0, 0, 0, -math.pi/6, 0])  
             time.sleep(1)
@@ -466,7 +456,78 @@ def menu():
             p_coor =home(p_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             x_translate = pitch =0
-
+        elif userInput== "stress":
+            x_translate=30
+            y_translate=30
+            z_translate = 80
+            roll = pitch =yaw = 0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor, x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array([x_translate, y_translate, z_translate, roll, pitch, yaw])
+            
+        elif userInput == "x":
+            x_translate = float(input("x translation"))
+            y_translate = z_translate = roll = pitch = yaw =0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor,x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
+            
+        elif userInput == "y":
+            y_translate = float(input("y translation"))
+            x_translate = z_translate = roll = pitch = yaw =0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor,x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
+        
+        elif userInput == "z":
+            z_translate = float(input("z translation"))
+            x_translate = y_translate = roll = pitch = yaw =0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor,x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
+        
+        elif userInput == "roll":
+            roll = float(input("roll degrees"))
+            x_translate = y_translate= z_translate = pitch = yaw =0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor,x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
+            
+        elif userInput == "pitch":
+            pitch = float(input("pitch degrees"))
+            x_translate = y_translate= z_translate = roll = yaw =0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor,x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
+            
+        elif userInput == "yaw":
+            roll = float(input("yaw degrees"))
+            x_translate = y_translate= z_translate = roll = pitch =0
+            print("in waiting before 6dof")
+            print(arduino.in_waiting)
+            p_coor = gcode(p_coor,x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
+            print("in waiting after 6dof")
+            print(arduino.in_waiting)
+            previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
+        
         else:
             continue
 
@@ -535,7 +596,7 @@ def menu():
 b_r = 123.7  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
-actuator_max = 300  # float(input("Actuator fully extended: "))
+actuator_max = 240  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
 fixed_rods = 210  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
