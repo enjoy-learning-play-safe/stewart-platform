@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -16,15 +16,16 @@ def write_read(x):
 
 
 def echo():
-    time.sleep(4)
+    time.sleep(3)
     ping = 23
-    time.sleep(0.02)
+    time.sleep(0.04)
     while ping > 0:
         write_read("G90")
         ping = ping - 1
 
 
 def flex():
+    move_radius = 60
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -33,8 +34,8 @@ def flex():
         n = n+1
         change = math.pi/90
         angle = angle + change
-        x_coor = np.array([np.ones((6))])* math.cos(angle)*60
-        y_coor = np.array([np.ones((6))])* math.sin(angle)*60
+        x_coor = np.array([np.ones((6))])* math.cos(angle)*move_radius
+        y_coor = np.array([np.ones((6))])* math.sin(angle)*move_radius
         z_coor = np.array([np.ones((6))])* 0.5*n
         changes = np.concatenate((x_coor, y_coor, z_coor))
         cir_p_coor = p_coor_home + changes
@@ -50,6 +51,7 @@ def flex():
 
 
 def reflex():
+    move_radius = 60
     index = 180
     angle = 0
     cir_p_coor = p_coor_home
@@ -58,8 +60,8 @@ def reflex():
         n = n+1
         change = math.pi/90
         angle = angle - change
-        x_coor = np.array([np.ones((6))])* math.cos(angle)*60
-        y_coor = np.array([np.ones((6))])* math.sin(angle)*60
+        x_coor = np.array([np.ones((6))])* math.cos(angle)*move_radius
+        y_coor = np.array([np.ones((6))])* math.sin(angle)*move_radius
         z_coor = np.array([np.ones((6))])*90 - 0.5*n
         changes = np.concatenate((x_coor, y_coor, z_coor))
         cir_p_coor = p_coor_home + changes
@@ -74,20 +76,24 @@ def reflex():
     print("done reverse")
     return p_coor_home
 
-def rotatingflex():
-    index = 180
+def rotatingflex(path_radius, tilt, index):
+    change = 2*math.pi / index 
     angle = 0
     n = 0
     while index > 0:
         n = n+1
-        change = math.pi/90
         angle = angle + change
-        x_coor = math.cos(angle)*30
-        y_coor = math.sin(angle)*30
-        pitch =  math.cos(angle)* (-30/180)*math.pi
-        roll = math.sin(angle)* (30/180)*math.pi
+        x_coor = math.cos(angle)*path_radius
+        y_coor = math.sin(angle)*path_radius
+        # z_coor = math.tan(tilt)*14 #test this
+        z_coor = math.cos(tilt)*14
+        
+        pitch =  math.cos(angle)* (-tilt)
+        roll = math.sin(angle)* tilt
         rott = np.matmul(rotation_simple(0, pitch, roll),p_coor_pbasis)
-        p_coor = np.array([rott[0] + x_coor, rott[1] +y_coor, rott[2]]) - p_coor_pbasis + p_coor_home
+        p_coor = np.array([rott[0] + x_coor, rott[1] +y_coor, rott[2]+z_coor]) - p_coor_pbasis + p_coor_home
+        # p_coor = np.array([rott[0], rott[1], rott[2]]) - p_coor_pbasis + p_coor_home
+
         legs = actuator_solving(p_coor)
         legs = np.round(legs, actuator_Precision) 
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
@@ -279,9 +285,11 @@ def menu():
             ini_home = "G0 X" + str(actuator_home) + " Y" + str(actuator_home) + " Z" + str(
                 actuator_home) + " A" + str(actuator_home) + " B" + str(actuator_home) + " C" + str(actuator_home)
             arduino.reset_input_buffer()
-            write_read("G28")
             time.sleep(3)
+            write_read("G28")
+            time.sleep(4)
             write_read(ini_home)
+            time.sleep(4)
             print("in waiting after start")
             print("homed at " + ini_home)
             print(arduino.in_waiting)
@@ -434,6 +442,7 @@ def menu():
             write_read("M112")
         elif userInput == "cancel":
             write_read("M410")
+            
         elif userInput == "flex":
             p_coor = home(p_coor,previous_inputs)
             previous_inputs = np.zeros((6))
@@ -448,19 +457,26 @@ def menu():
             time.sleep(2)
 
         elif userInput == "casualflex":
-            p_coor = gcode(p_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
-            previous_inputs = np.array([30, 0, 0, 0, -math.pi/6, 0])  
+            # p_coor = gcode(p_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
+            # previous_inputs = np.array([30, 0, 0, 0, -math.pi/6, 0])  
+            
+            path_radius = 14 #change here
+            tilt = (30/180)/math.pi #change here
+            index = 120 #change here
+            p_coor = gcode(p_coor, path_radius,0, 0, 0, -tilt, 0, previous_inputs)
+            previous_inputs = np.array([14, 0, 0, 0, -tilt, 0])  
+
             time.sleep(1)
-            rotatingflex()
+            rotatingflex(path_radius, tilt, index)
             time.sleep(2)
             p_coor =home(p_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             x_translate = pitch =0
         elif userInput== "stress":
-            x_translate=30
-            y_translate=30
+            x_translate= 30
+            y_translate= 30
             z_translate = 80
-            roll = pitch =yaw = 0
+            roll = pitch =yaw = math.pi/18
             print("in waiting before 6dof")
             print(arduino.in_waiting)
             p_coor = gcode(p_coor, x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
@@ -469,7 +485,7 @@ def menu():
             previous_inputs = np.array([x_translate, y_translate, z_translate, roll, pitch, yaw])
             
         elif userInput == "x":
-            x_translate = float(input("x translation"))
+            x_translate = float(input("X translation absolute: "))
             y_translate = z_translate = roll = pitch = yaw =0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
@@ -479,7 +495,7 @@ def menu():
             previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
             
         elif userInput == "y":
-            y_translate = float(input("y translation"))
+            y_translate = float(input("Y translation absolute: "))
             x_translate = z_translate = roll = pitch = yaw =0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
@@ -489,7 +505,7 @@ def menu():
             previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
         
         elif userInput == "z":
-            z_translate = float(input("z translation"))
+            z_translate = float(input("Z translation absolute: "))
             x_translate = y_translate = roll = pitch = yaw =0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
@@ -499,7 +515,7 @@ def menu():
             previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
         
         elif userInput == "roll":
-            roll = float(input("roll degrees"))
+            roll = (float(input("Roll movement absolute in degrees: "))/180)*math.pi
             x_translate = y_translate= z_translate = pitch = yaw =0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
@@ -509,7 +525,7 @@ def menu():
             previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
             
         elif userInput == "pitch":
-            pitch = float(input("pitch degrees"))
+            pitch = (float(input("Pitch movement absolute in degrees: "))/180)*math.pi
             x_translate = y_translate= z_translate = roll = yaw =0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
@@ -519,7 +535,7 @@ def menu():
             previous_inputs = np.array( [x_translate, y_translate, z_translate, roll, pitch, yaw])
             
         elif userInput == "yaw":
-            roll = float(input("yaw degrees"))
+            yaw = (float(input("Yaw movement absolute in degrees: "))/180)*math.pi
             x_translate = y_translate= z_translate = roll = pitch =0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
@@ -598,7 +614,7 @@ p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
 actuator_max = 240  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
-fixed_rods = 210  # float(input("Fixed rod lengths: "))
+fixed_rods = 208  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
 max_change_per_slice = 1  # Change resolution of movements here
 minimum_slice_per_movement = 10
