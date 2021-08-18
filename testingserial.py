@@ -534,12 +534,12 @@ def menu():
 
 
 # start code form here
-b_r = 123.7  # float(input("Base radius: "))
+b_r = 125  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
-actuator_max = 300  # float(input("Actuator fully extended: "))
+actuator_max = 240  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
-fixed_rods = 210  # float(input("Fixed rod lengths: "))
+fixed_rods = 220  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
 max_change_per_slice = 1  # Change resolution of movements here
 minimum_slice_per_movement = 10

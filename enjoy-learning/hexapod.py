@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM5', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -76,30 +76,36 @@ def reflex():
     print("done reverse")
     return p_coor_home
 
-def rotatingflex(path_radius, tilt, index):
-    change = 2*math.pi / index 
+def rotatingflex():
+    #ignore 
+    # write_read("G0 F400")
+    # p_coor = gcode(p_coor, 11,0, 4, 0, -math.pi/6, 0, previous_inputs)
+    # previous_inputs = np.array([11, 0, 4, 0, -math.pi/6, 0])  
+    # time.sleep(2)
+    # rotatingflex()
+    # time.sleep(2)
+    # return feedrate and home afterwards
+    #ignore
+    index = 120
     angle = 0
     n = 0
     while index > 0:
         n = n+1
+        change = math.pi/60
         angle = angle + change
-        x_coor = math.cos(angle)*path_radius
-        y_coor = math.sin(angle)*path_radius
-        # z_coor = math.tan(tilt)*14 #test this
-        z_coor = math.cos(tilt)*14
-        
-        pitch =  math.cos(angle)* (-tilt)
-        roll = math.sin(angle)* tilt
+        x_coor = math.cos(angle)*11
+        y_coor = math.sin(angle)*11
+        z_coor = 4
+        pitch =  math.cos(angle)* (-30/180)*math.pi
+        roll = math.sin(angle)* (30/180)*math.pi
         rott = np.matmul(rotation_simple(0, pitch, roll),p_coor_pbasis)
         p_coor = np.array([rott[0] + x_coor, rott[1] +y_coor, rott[2]+z_coor]) - p_coor_pbasis + p_coor_home
         # p_coor = np.array([rott[0], rott[1], rott[2]]) - p_coor_pbasis + p_coor_home
-
         legs = actuator_solving(p_coor)
         legs = np.round(legs, actuator_Precision) 
         output = "G0 X" + str(legs[0]) + " Y" + str(legs[1]) + " Z" + str(legs[2]) + " A" + str(legs[3]) + " B" + str(legs[4]) + " C" + str(legs[5])
         write_read(output)
-        time.sleep(0.01)
-        # print(np.round(p_coor,2))
+        time.sleep(0.02)
         print(output)
         index = index -1
     print("done") 
@@ -460,23 +466,22 @@ def menu():
             # p_coor = gcode(p_coor, 30,0, 0, 0, -math.pi/6, 0, previous_inputs)
             # previous_inputs = np.array([30, 0, 0, 0, -math.pi/6, 0])  
             
-            path_radius = 14 #change here
-            tilt = (30/180)/math.pi #change here
-            index = 120 #change here
-            p_coor = gcode(p_coor, path_radius,0, 0, 0, -tilt, 0, previous_inputs)
-            previous_inputs = np.array([14, 0, 0, 0, -tilt, 0])  
-
-            time.sleep(1)
-            rotatingflex(path_radius, tilt, index)
+            #editef for scanning
+            write_read("G0 F400")
+            p_coor = gcode(p_coor, 11,0, 4, 0, -math.pi/6, 0, previous_inputs)
+            previous_inputs = np.array([11, 0, 4, 0, -math.pi/6, 0])  
+            time.sleep(2)
+            rotatingflex()
             time.sleep(2)
             p_coor =home(p_coor, previous_inputs)
             previous_inputs = np.zeros((6))
             x_translate = pitch =0
+            write_read("G0 F1600")
         elif userInput== "stress":
-            x_translate= 30
-            y_translate= 30
+            x_translate=30
+            y_translate=30
             z_translate = 80
-            roll = pitch =yaw = math.pi/18
+            roll = pitch =yaw = 0
             print("in waiting before 6dof")
             print(arduino.in_waiting)
             p_coor = gcode(p_coor, x_translate, y_translate, z_translate, roll, pitch, yaw, previous_inputs)
@@ -609,15 +614,15 @@ def menu():
 
 
 # start code form here
-b_r = 123.7  # float(input("Base radius: "))
+b_r = 125  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
 actuator_max = 240  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
-fixed_rods = 208  # float(input("Fixed rod lengths: "))
+fixed_rods = 220  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
 max_change_per_slice = 1  # Change resolution of movements here
-minimum_slice_per_movement = 10
+minimum_slice_per_movement = 5
 range_x_translate = 100
 range_y_translate = 100
 range_z_translate = (actuator_max-actuator_mini)/2
