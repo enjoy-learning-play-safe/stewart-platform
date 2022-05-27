@@ -3,7 +3,7 @@ import numpy as np
 import serial
 import time
 
-arduino = serial.Serial(port='COM4', baudrate=250000, timeout=0.2)
+arduino = serial.Serial(port='COM3', baudrate=250000, timeout=0.2)
 
 
 def write_read(x):
@@ -35,7 +35,7 @@ def flex():
         angle = angle + change
         x_coor = np.array([np.ones((6))])* math.cos(angle)*60
         y_coor = np.array([np.ones((6))])* math.sin(angle)*60
-        z_coor = np.array([np.ones((6))])* 0.5*n
+        z_coor = np.array([np.ones((6))])* 0.3*n
         changes = np.concatenate((x_coor, y_coor, z_coor))
         cir_p_coor = p_coor_home + changes
         legs = actuator_solving(cir_p_coor)
@@ -60,7 +60,7 @@ def reflex():
         angle = angle - change
         x_coor = np.array([np.ones((6))])* math.cos(angle)*60
         y_coor = np.array([np.ones((6))])* math.sin(angle)*60
-        z_coor = np.array([np.ones((6))])*90 - 0.5*n
+        z_coor = np.array([np.ones((6))])*54 - 0.3*n
         changes = np.concatenate((x_coor, y_coor, z_coor))
         cir_p_coor = p_coor_home + changes
         legs = actuator_solving(cir_p_coor)
@@ -535,7 +535,7 @@ def menu():
 b_r = 123.7  # float(input("Base radius: "))
 p_r = 75  # float(input("Platform radius: "))
 actuator_mini = 0  # float(input("Actuator unextended: "))
-actuator_max = 300  # float(input("Actuator fully extended: "))
+actuator_max = 240  # float(input("Actuator fully extended: "))
 actuator_home = ((actuator_max-actuator_mini)/2) + actuator_mini
 fixed_rods = 210  # float(input("Fixed rod lengths: "))
 actuator_Precision = 3  # Number of DP for actuator length
